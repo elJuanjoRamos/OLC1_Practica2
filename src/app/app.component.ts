@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-
+import { LexicoAnalizer } from '../app/analizer/LexicoAnalizer';
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
@@ -10,9 +10,12 @@ export class AppComponent {
   //VARIABLES GLOBALES
   file:any;
   inputVar: string;
+  lexicoAnalizer: any;
 
-
-  constructor() { this.inputVar = "" }
+  constructor() { 
+    this.inputVar = "";
+    this.lexicoAnalizer = LexicoAnalizer.getInstance();     
+  }
 
 
   //carga de archivos
@@ -24,7 +27,13 @@ export class AppComponent {
     fileReader.onload = (e) => {
       this.inputVar = fileReader.result.toString();   
     }
-    fileReader.readAsText(this.file);
+    fileReader.readAsText( this.file );
+  }
+
+  enviar(){
+    this.lexicoAnalizer.analizerThisText( this.inputVar );
+    this.lexicoAnalizer.show();
+    this.lexicoAnalizer.showError();
   }
 
 
