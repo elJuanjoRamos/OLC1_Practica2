@@ -4,6 +4,9 @@ export class LexicoAnalizer {
     //GLOBAL VARIABLES
     private auxiliar: string = "";
     private controller: any;
+    private PUNTUACION = ['!', '&', '.', ',', ':', ';', '{', '}', '[', ']', '(', ')', '?', '*', '/', '"', '-', "'"];
+    private SYMBOL = ['<', '>', '+', '|', '=', '_'];
+
     //SINGLETON
     private static instance: LexicoAnalizer;
     private constructor() {
@@ -24,7 +27,6 @@ export class LexicoAnalizer {
         var column: number = 0;
         var row: number = 1;;
         textInput = textInput + "\n"; //se agrega el hash del final
-        console.log(textInput);
         var delimiter = textInput.length;
         for (let i = 0; i < textInput.length; i++) {
             var letra = textInput[i];
@@ -44,7 +46,7 @@ export class LexicoAnalizer {
                         row++; //FILA INCREMENTA
                     }
                     //VERIFICA ESPACIOS EN BLANCO
-                    else if (letra == ' ') {
+                    else if (letra == ' ' || letra.charCodeAt(0) == 13) {
                         //column++;
                         state = 0;
                     }
@@ -54,95 +56,89 @@ export class LexicoAnalizer {
                         this.auxiliar += letra;
                     }
                     //VERIFICA SI ES PUNTUACION
-                    else if (letra == "!") {
-                        this.controller.InsertToken(row, column - 1, letra.toString(), "TK_Exclamacion");
+                    else if (this.IsPunctuation(letra)) {
+                        if (letra == "!") {
+                            this.controller.InsertToken(row, column - 1, letra.toString(), "TK_Exclamacion");
+                        }
+                        else if (letra == "&") {
+                            this.controller.InsertToken(row, column - 1, letra.toString(), "TK_&");
+                        }
+                        else if (letra == ".") {
+                            this.controller.InsertToken(row, column - 1, letra.toString(), "TK_Punto");
+                        }
+                        else if (letra == ",") {
+                            this.controller.InsertToken(row, column - 1, letra.toString(), "TK_Coma");
+                        }
+                        else if (letra == ":") {
+                            this.controller.InsertToken(row, column - 1, letra.toString(), "TK_DosPuntos");
+                        }
+                        else if (letra == ";") {
+                            this.controller.InsertToken(row, column - 1, letra.toString(), "TK_PuntoComa");
+                        }
+                        else if (letra == "{") {
+                            this.controller.InsertToken(row, column - 1, letra.toString(), "TK_LlaveIzquierda");
+                        }
+                        else if (letra == "}") {
+                            this.controller.InsertToken(row, column - 1, letra.toString(), "TK_LlaveDerecha");
+                        }
+                        else if (letra == "[") {
+                            this.controller.InsertToken(row, column - 1, letra.toString(), "TK_Corchete_Izq");
+                        }
+                        else if (letra == "(") {
+                            this.controller.InsertToken(row, column - 1, letra.toString(), "TK_Parentesis_Izq");
+                        }
+                        else if (letra == ")") {
+                            this.controller.InsertToken(row, column - 1, letra.toString(), "TK_Parentesis_Der");
+                        }
+                        else if (letra == "]") {
+                            this.controller.InsertToken(row, column - 1, letra.toString(), "TK_Corchete_Der");
+                        }
+                        else if (letra == "?") {
+                            this.controller.InsertToken(row, column - 1, letra.toString(), "TK_Interrogacion");
+                        }
+                        else if (letra == "*") {
+                            this.controller.InsertToken(row, column - 1, letra.toString(), "TK_Multiplicacion");
+                        }
+                        else if (letra == "/") {
+                            state = 3;
+                            this.auxiliar += letra;
+                        }
+                        else if (letra == '"') {
+                            state = 8;
+                            this.auxiliar += letra;
+                        }
+                        else if (letra == "'") {
+                            state = 10;
+                            this.auxiliar += letra;
+                        }
+                        else if (letra == "-") {
+                            this.controller.InsertToken(row, column - 1, letra.toString(), "TK_Resta");
+                        }
                     }
-                    else if (letra == "&") {
-                        this.controller.InsertToken(row, column - 1, letra.toString(), "TK_&");
+                    else if( this.IsSymbol(letra) ) {
+                        if (letra == "<") {
+                            this.controller.InsertToken(row, column - 1, letra.toString(), "TK_Menor");
+                        }
+                        else if (letra == ">") {
+                            this.controller.InsertToken(row, column - 1, letra.toString(), "TK_Mayor");
+                        } 
+                        else if (letra == "+") {
+                            this.controller.InsertToken(row, column - 1, letra.toString(), "TK_Suma");
+                        } 
+                        else if (letra == '|') {
+                            this.controller.InsertToken(row, column - 1, letra.toString(), "TK_Pleca");
+                        } 
+                        else if (letra == '=') {
+                            this.controller.InsertToken(row, column - 1, letra.toString(), "TK_Igual");
+                        } 
+                        else if (letra == '_') {
+                            this.controller.InsertToken(row, column - 1, letra.toString(), "TK_Guion_Bajo");
+                        }
                     }
-                    /*else if (letra == "¡") {
-                        this.controller.InsertToken(row, column - 1, letra.toString(), "TK_Exclamacion");
-                    }
-                    else if (letra == "@") {
-                        this.controller.InsertToken(row, column - 1, letra.toString(), "TK_Arroba");
-                    }*/
-                    else if (letra == ".") {
-                        this.controller.InsertToken(row, column - 1, letra.toString(), "TK_Punto");
-                    }
-                    else if (letra == ",") {
-                        this.controller.InsertToken(row, column - 1, letra.toString(), "TK_Coma");
-                    }
-                    else if (letra == ":") {
-                        this.controller.InsertToken(row, column - 1, letra.toString(), "TK_DosPuntos");
-                    }
-                    else if (letra == ";") {
-                        this.controller.InsertToken(row, column - 1, letra.toString(), "TK_PuntoComa");
-                    }
-                    else if (letra == "{") {
-                        this.controller.InsertToken(row, column - 1, letra.toString(), "TK_LlaveIzquierda");
-                    }
-                    else if (letra == "}") {
-                        this.controller.InsertToken(row, column - 1, letra.toString(), "TK_LlaveDerecha");
-                    }
-                    else if (letra == "[") {
-                        this.controller.InsertToken(row, column - 1, letra.toString(), "TK_Corchete_Izq");
-                    }
-                    else if (letra == "(") {
-                        this.controller.InsertToken(row, column - 1, letra.toString(), "TK_Parentesis_Izq");
-                    }
-                    else if (letra == ")") {
-                        this.controller.InsertToken(row, column - 1, letra.toString(), "TK_Parentesis_Der");
-                    }
-                    else if (letra == "]") {
-                        this.controller.InsertToken(row, column - 1, letra.toString(), "TK_Corchete_Der");
-                    }
-                    else if (letra == "?") {
-                        this.controller.InsertToken(row, column - 1, letra.toString(), "TK_Interrogacion");
-                    }
-                    /*else if (letra == "%") {
-                        this.controller.InsertToken(row, column - 1, letra.toString(), "TK_Porcentaje");
-                    }*/
-                    else if (letra == "*") {
-                        this.controller.InsertToken(row, column - 1, letra.toString(), "TK_Multiplicacion");
-                    }
-                    else if (letra == "/") {
-                        state = 3;
-                        this.auxiliar += letra;
-                    }
-                    else if (letra == '"') {
-                        state = 8;
-                        this.auxiliar += letra;
-                    }
-                    else if (letra == "-") {
-                        this.controller.InsertToken(row, column - 1, letra.toString(), "TK_Resta");
-                    }
-                    else if (letra == "<") {
-                        this.controller.InsertToken(row, column - 1, letra.toString(), "TK_Menor");
-                    }
-                    else if (letra == ">") {
-                        this.controller.InsertToken(row, column - 1, letra.toString(), "TK_Mayor");
-                    } /*else if (letra == "~") {
-                        this.controller.InsertToken(row, column - 1, letra.toString(), "TK_Virgulilla");
-                    }*/ else if (letra == "+") {
-                        this.controller.InsertToken(row, column - 1, letra.toString(), "TK_Suma");
-                    } else if (letra == '|') {
-                        this.controller.InsertToken(row, column - 1, letra.toString(), "TK_Pleca");
-                    }else if (letra == '#' && i == delimiter) {
-                        break;
-                        //this.controller.InsertToken(row, column - 1, letra.toString(), "TK_Numeral");
-                    }/*else if (letra == '$') {
-                        this.controller.InsertToken(row, column - 1, letra.toString(), "TK_Simbolo_Dolar");
-                    }*/ else if (letra == '=') {
-                        this.controller.InsertToken(row, column - 1, letra.toString(), "TK_Igual");
-                    } /*else if ('^') {
-                        this.controller.InsertToken(row, column - 1, letra.toString(), "TK_Simbolo");
-                    }*/ else if (letra == '_') {
-                        this.controller.InsertToken(row, column - 1, letra.toString(), "TK_Guion_Bajo");
-                    } else {
-                        this.controller.InsertToken(row, column, letra, "TK_Desconocido");
+                    else {
+                        this.controller.InsertError(row, column, letra.toString(), "TK_Desconocido");
                         state = 0;
                     }
-
                     break;
                 case 1:
                     if (this.IsLetter(letra) || this.IsDigit(letra) || letra == '_') {
@@ -150,8 +146,8 @@ export class LexicoAnalizer {
                         state = 1;
                     }
                     else {
-                        
-                        const reservada = ['int', 'string', 'double', 'char', 'bool'];
+                        const reservada = ['int', 'string', 'double', 'char', 'bool', 'public', 'class',
+                        'static', 'void', 'Main', 'return', 'true', 'false', 'for', 'if', 'while', 'else'];
 
                         if (reservada.includes(this.auxiliar)) {
                             this.controller.InsertToken(row, (column - this.auxiliar.length - 1), this.auxiliar, "PR_" + this.auxiliar);
@@ -160,8 +156,6 @@ export class LexicoAnalizer {
                             this.controller.InsertToken(row, (column - this.auxiliar.length - 1), this.auxiliar, "Identificador");
                         }
                         this.auxiliar = "";
-                        i = (i-1);
-                        column = (column-1);
                         state = 0;
                     }
                     break;
@@ -269,7 +263,25 @@ export class LexicoAnalizer {
                         this.auxiliar = "";
                     }
                     break;
-
+                case 10: 
+                    if (letra != "'") {
+                        if (letra == '\n') { row++; column = 0; }
+                        this.auxiliar += letra;
+                        state = 10;
+                    }
+                    else {
+                        state = 11;
+                        this.auxiliar += letra;
+                        i--; column--;
+                    }
+                    break;  
+                case 11: 
+                    if (letra == "'") {
+                        this.controller.InsertToken(row, (column - this.auxiliar.length), this.auxiliar, "Cadena_HTML");
+                        state = 0;
+                        this.auxiliar = "";
+                    }
+                    break;  
                 default:
                     this.controller.InsertToken(row, column, letra.toString(), "TD_Desconocido");
                     break;
@@ -288,6 +300,19 @@ export class LexicoAnalizer {
         return (str.charCodeAt(0) >= charCodeZero && str.charCodeAt(0) <= charCodeNine);
     }
 
+    IsPunctuation( str: string) : boolean {
+        if ( this.PUNTUACION.includes(str) ) {
+            return true;
+        }    
+        return false;
+    }
+
+    IsSymbol( str: string) : boolean {
+        if ( this.SYMBOL.includes(str) ) {
+            return true;
+        }    
+        return false;
+    }
 
     show(){
         this.controller.show();

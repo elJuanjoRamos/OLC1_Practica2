@@ -123,5 +123,8 @@
       }
     }
   },
-  "defaultProject": "OLC1Practica2"
+  "defaultProject": "OLC1Practica2",
+  "cli": {
+    "analytics": "c80ee8d2-54fd-4cd3-b0a0-366c8ba95473"
+  }
 }

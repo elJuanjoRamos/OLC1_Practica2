@@ -39,5 +39,14 @@ export class TokenController{
             console.log(e.toString());
         });
     }
+    clear(){
+        this.arrayListToken = [];
+        this.arrayListError = [];
+    }        
+    
+    public get getArrayListToken() : Token[] {
+        return this.arrayListToken;
+    }
+    
 
 }
