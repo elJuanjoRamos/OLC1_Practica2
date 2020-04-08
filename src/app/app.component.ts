@@ -1,4 +1,4 @@
-import { Component,  ViewChild, ElementRef, Renderer2, Pipe, PipeTransform } from '@angular/core';
+import { Component } from '@angular/core';
 import { LexicoAnalizer } from '../app/analizer/LexicoAnalizer';
 import { SintacticoAnalizer } from './analizer/SintacticoAnalizer';
 import { TokenController } from './controller/TokenController';
@@ -21,7 +21,7 @@ export class AppComponent {
   tokenController: any;
   
 
-  constructor(private renderer: Renderer2) { 
+  constructor() { 
     this.inputVar = "";
     this.lexicoAnalizer = LexicoAnalizer.getInstance();     
     this.sintacticoAnalizer = SintacticoAnalizer.getInstance();     
@@ -44,8 +44,8 @@ export class AppComponent {
     let fileReader = new FileReader();
     fileReader.onload = (e) => {
       var i = "textArea" + id;
-      const el = document.getElementById(i);
-      el.textContent = fileReader.result.toString();   
+      const textArea = document.getElementById(i);
+      textArea.textContent = fileReader.result.toString();   
     }
     fileReader.readAsText( this.file );
   }
@@ -53,11 +53,11 @@ export class AppComponent {
   enviar( str: string ){
     console.clear();
     console.log(str);
-    /*this.tokenController.clear();
-    this.lexicoAnalizer.analizerThisText( this.inputVar );
+    this.tokenController.clear();
+    this.lexicoAnalizer.analizerThisText( str );
     this.lexicoAnalizer.show();
     this.lexicoAnalizer.showError();
-    */
+    
     //ANALIZADOR SINTACTICO
     //this.sintacticoAnalizer.obtenerLista(TokenController.getInstance().getArrayListToken);
   }

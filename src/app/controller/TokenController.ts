@@ -36,7 +36,7 @@ export class TokenController{
     }
     showError(){
         this.arrayListError.forEach(e => {
-            console.log(e.toString());
+            console.error(e.toString());
         });
     }
     clear(){

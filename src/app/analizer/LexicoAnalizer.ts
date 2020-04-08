@@ -147,7 +147,8 @@ export class LexicoAnalizer {
                     }
                     else {
                         const reservada = ['int', 'string', 'double', 'char', 'bool', 'public', 'class',
-                        'static', 'void', 'Main', 'return', 'true', 'false', 'for', 'if', 'while', 'else'];
+                        'static', 'void', 'Main', 'return', 'true', 'false', 'for', 'if', 'while', 'else', 
+                        'switch', 'case', 'break', 'null', 'default', 'do'];
 
                         if (reservada.includes(this.auxiliar)) {
                             this.controller.InsertToken(row, (column - this.auxiliar.length - 1), this.auxiliar, "PR_" + this.auxiliar);
@@ -157,18 +158,39 @@ export class LexicoAnalizer {
                         }
                         this.auxiliar = "";
                         state = 0;
+                        i--;
+                        column--;
                     }
                     break;
                 case 2:
                     if (this.IsDigit(letra)) {
                         this.auxiliar += letra;
                         state = 2;
-                    }
+                    } else if (letra == ".") {
+                        this.auxiliar += letra;
+                        state = 12;
+                    }   
                     else {
-                        this.controller.InsertToken(row, column, this.auxiliar, "Digito");
+                        if (letra == ";" ) {
+                            this.controller.InsertToken(row, column, this.auxiliar, "Digito");
+                            i--;
+                            column--;          
+                        } else {
+                            
+                            for (let j = i; j < textInput.length; j++) {
+                                var element = textInput[j];
+                                if (element == ";") {
+                                    i = j;
+                                    this.controller.InsertToken(row, (column - this.auxiliar.length), this.auxiliar, "Decimal");
+                                    this.controller.InsertToken(row, (column), ";", "TK_PuntoComa");
+                                    break;
+                                }else{
+                                    this.controller.InsertError(row, (column), element, "Caracter_" + element);    
+                                    column++;  
+                                }      
+                            }
+                        }
                         this.auxiliar = "";
-                        i--;
-                        column--;
                         state = 0;
                     }
                     break;
@@ -277,11 +299,42 @@ export class LexicoAnalizer {
                     break;  
                 case 11: 
                     if (letra == "'") {
-                        this.controller.InsertToken(row, (column - this.auxiliar.length), this.auxiliar, "Cadena_HTML");
                         state = 0;
+                        this.controller.InsertToken(row, (column - this.auxiliar.length), this.auxiliar, "Cadena_HTML");
                         this.auxiliar = "";
                     }
-                    break;  
+                    break; 
+                case 12:
+
+
+                    if(this.IsDigit(letra)){
+                        this.auxiliar += letra;
+                        state = 12;
+                    } else {
+                        if (letra == ";" ) {
+                            this.controller.InsertToken(row, (column - this.auxiliar.length), this.auxiliar, "Decimal");  
+                            i--;
+                            column--;        
+                        } else {
+                            
+                            for (let j = i; j < textInput.length; j++) {
+                                var element = textInput[j];
+                                if (element == ";") {
+                                    i = j;
+                                    this.controller.InsertToken(row, (column - this.auxiliar.length), this.auxiliar, "Decimal");
+                                    this.controller.InsertToken(row, (column), ";", "TK_PuntoComa");
+                                    break;
+                                }else{
+                                    this.controller.InsertError(row, (column), element, "Caracter_" + element);    
+                                    column++;  
+                                }      
+                            }
+                        }
+                        state = 0;
+                        this.auxiliar = "";    
+                            
+                    }  
+                    break;     
                 default:
                     this.controller.InsertToken(row, column, letra.toString(), "TD_Desconocido");
                     break;
