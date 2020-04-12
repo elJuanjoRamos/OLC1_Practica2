@@ -48,5 +48,8 @@ export class TokenController{
         return this.arrayListToken;
     }
     
+    public get getArrayListError() : number {
+        return this.arrayListError.length; 
+    }
 
 }

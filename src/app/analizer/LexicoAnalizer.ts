@@ -49,6 +49,10 @@ export class LexicoAnalizer {
                     else if (letra == ' ' || letra.charCodeAt(0) == 13) {
                         //column++;
                         state = 0;
+                    }//SI VIENE TAB
+                    else if (letra == '\t') {
+                        state = 0;
+                        column++;
                     }
                     //VERIFICA SI VIENE NUMERO
                     else if (this.IsDigit(letra)) {
@@ -146,9 +150,9 @@ export class LexicoAnalizer {
                         state = 1;
                     }
                     else {
-                        const reservada = ['int', 'string', 'double', 'char', 'bool', 'public', 'class',
+                        const reservada = ['int', 'String', 'double', 'char', 'bool', 'public', 'class',
                         'static', 'void', 'Main', 'return', 'true', 'false', 'for', 'if', 'while', 'else', 
-                        'switch', 'case', 'break', 'null', 'default', 'do'];
+                        'switch', 'case', 'break', 'null', 'default', 'do', 'Console', 'Write', 'continue'];
 
                         if (reservada.includes(this.auxiliar)) {
                             this.controller.InsertToken(row, (column - this.auxiliar.length - 1), this.auxiliar, "PR_" + this.auxiliar);
@@ -171,13 +175,14 @@ export class LexicoAnalizer {
                         state = 12;
                     }   
                     else {
-                        if (letra == ";" ) {
+                        /*if (letra == ";" ) {
                             this.controller.InsertToken(row, column, this.auxiliar, "Digito");
                             i--;
                             column--;          
                         } else {
+                            this.controller.InsertToken(row, column, this.auxiliar, "Digito");
                             
-                            for (let j = i; j < textInput.length; j++) {
+                            /*for (let j = i; j < textInput.length; j++) {
                                 var element = textInput[j];
                                 if (element == ";") {
                                     i = j;
@@ -188,8 +193,11 @@ export class LexicoAnalizer {
                                     this.controller.InsertError(row, (column), element, "Caracter_" + element);    
                                     column++;  
                                 }      
-                            }
-                        }
+                            }*
+                        }*/
+                        this.controller.InsertToken(row, column, this.auxiliar, "Digito");
+                        i--;
+                        column--; 
                         this.auxiliar = "";
                         state = 0;
                     }
@@ -251,7 +259,9 @@ export class LexicoAnalizer {
                         state = 0;
                         this.auxiliar = "";
                     } else{
-                        this.controller.InsertError(row, column, this.auxiliar, "TK_Desconocido");
+                        this.auxiliar += letra;
+                        state = 6;
+                        /*this.controller.InsertError(row, column, this.auxiliar, "TK_Desconocido");
                         var index: number = i;
                         for (index = i; index < textInput.length; index++){
                             var error = textInput[index];
@@ -263,7 +273,7 @@ export class LexicoAnalizer {
                             }                            
                         }
                         state = 0;
-                        this.auxiliar = "";
+                        this.auxiliar = "";*/
                     }  
                     break;
                 case 8:
@@ -311,11 +321,12 @@ export class LexicoAnalizer {
                         this.auxiliar += letra;
                         state = 12;
                     } else {
-                        if (letra == ";" ) {
+                        /*if (letra == ";" ) {
                             this.controller.InsertToken(row, (column - this.auxiliar.length), this.auxiliar, "Decimal");  
                             i--;
                             column--;        
                         } else {
+                            this.controller.InsertToken(row, (column - this.auxiliar.length), this.auxiliar, "Decimal");  
                             
                             for (let j = i; j < textInput.length; j++) {
                                 var element = textInput[j];
@@ -329,7 +340,9 @@ export class LexicoAnalizer {
                                     column++;  
                                 }      
                             }
-                        }
+                        }*/
+                        this.controller.InsertToken(row, (column - this.auxiliar.length), this.auxiliar, "Decimal");  
+
                         state = 0;
                         this.auxiliar = "";    
                             

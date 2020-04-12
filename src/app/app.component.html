@@ -15,7 +15,10 @@
       </svg>
     </a>
 </div>
+
+
 <div class="content">
+
   <button (click)="cargarTabs()">nueva tab</button>
   <mat-tab-group >
     <mat-tab *ngFor="let i of arrayTabs" label="Pestaña {{i}}"> 
@@ -35,6 +38,35 @@
     
     </mat-tab>
   </mat-tab-group>
+
+    
+  <!--<mat-grid-list cols="4" rowHeight="100px">
+    <mat-grid-tile [colspan]="3" [rowspan]="1" >
+      <button (click)="cargarTabs()">nueva tab</button>
+      <mat-tab-group >
+        <mat-tab *ngFor="let i of arrayTabs" label="Pestaña {{i}}"> 
+          <div class="block">
+            <label id="lbl">Code </label>
+            <input type='file' (change)="fileChanged($event)">
+            <button (click)="uploadDocument(i)">Cargar doc</button>
+          </div>
+          
+          <div class="content">
+            <textarea #textArea id="textArea{{i}}"  style="width: 500px; height: 500px;"></textarea>  
+          </div>
+          <div class="block">
+            <button (click)="enviar(textArea.value)">Analizar</button>
+          </div>
+          
+        
+        </mat-tab>
+      </mat-tab-group>
+     
+    </mat-grid-tile>
+  </mat-grid-list>-->
+  
+
+
 
 </div>
 

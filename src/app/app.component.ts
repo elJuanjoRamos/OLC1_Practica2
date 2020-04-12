@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { LexicoAnalizer } from '../app/analizer/LexicoAnalizer';
 import { SintacticoAnalizer } from './analizer/SintacticoAnalizer';
 import { TokenController } from './controller/TokenController';
+import { TraductorController } from './controller/TraductorController';
 
 @Component({
   selector: 'app-root',
@@ -19,6 +20,7 @@ export class AppComponent {
   lexicoAnalizer: any;
   sintacticoAnalizer: any;
   tokenController: any;
+  traductorController: any;
   
 
   constructor() { 
@@ -26,6 +28,7 @@ export class AppComponent {
     this.lexicoAnalizer = LexicoAnalizer.getInstance();     
     this.sintacticoAnalizer = SintacticoAnalizer.getInstance();     
     this.tokenController = TokenController.getInstance();     
+    this.traductorController = TraductorController.getInstance();     
   }
 
 
@@ -52,14 +55,23 @@ export class AppComponent {
 
   enviar( str: string ){
     console.clear();
-    console.log(str);
     this.tokenController.clear();
+    this.traductorController.ClearTraduction();
     this.lexicoAnalizer.analizerThisText( str );
-    this.lexicoAnalizer.show();
-    this.lexicoAnalizer.showError();
     
+    /*//Se envia al sintactico si no hay error lexico
+    if (this.lexicoAnalizer.getArrayListError == undefined) {
+    }  else {
+      console.log("errores lexicos")
+    }*/
+
     //ANALIZADOR SINTACTICO
     //this.sintacticoAnalizer.obtenerLista(TokenController.getInstance().getArrayListToken);
+    
+    //TRADUCTOR
+    this.traductorController.obtenerLista(TokenController.getInstance().getArrayListToken);
+    console.log("---------------");
+    this.traductorController.ShowTraduction();
   }
 
 
