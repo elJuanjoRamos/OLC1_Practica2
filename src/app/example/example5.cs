@@ -39,7 +39,12 @@ public class Example
 
         do
         {
-            
+            int b = 1;
+            int a = 0;
+            for (int i = 0; i < 30; i++)
+            {
+                //comentario
+            }
         } while (peso>2);
     }
 }

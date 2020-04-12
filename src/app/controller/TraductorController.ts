@@ -1,4 +1,5 @@
 import { Token } from '../models/Token';
+import { TokenPyton } from '../models/TokenPyton';
 
 export class TraductorController {
 
@@ -16,7 +17,7 @@ export class TraductorController {
 
     //Prueba 
     private traductor: string = "";
-    private arrayTraducido: string[] = [];
+    private arrayTraducido: TokenPyton[] = [];
     private dataType = ['PR_void','PR_int', 'PR_double', 'PR_char', 'PR_bool', 'PR_String'];
 
    
@@ -115,14 +116,14 @@ export class TraductorController {
                 this.emparejar("TK_Parentesis_Izq");
                 this.declaracionParametros();
                 this.traductor = this.traductor+ "):";
+                this.InsertTraduction(this.traductor, "cadena");
+                this.InsertTraduction("{", "TK_DosPuntos");
                 this.emparejar("TK_Parentesis_Der");
                 this.emparejar("TK_LlaveIzquierda");
-                this.traductor = this.traductor + "\n\t";
                 this.declaracionComentario();
                 this.listaDeclaracion();
                 this.declaracionComentario();
                 this.emparejar("TK_LlaveDerecha");
-                this.InsertTraduction(this.traductor);
                 this.esFuncion = false;
             } else if(this.currentToken.description == "TK_Coma") {
                 this.traductor = "var " + this.traductor;
@@ -131,7 +132,7 @@ export class TraductorController {
             } else if(this.currentToken.description == "TK_PuntoComa") {
                 this.traductor = "var " + this.traductor; 
                 this.emparejar("TK_PuntoComa");
-                this.InsertTraduction(this.traductor);
+                this.InsertTraduction(this.traductor, "cadena");
             }
         
     }
@@ -220,8 +221,9 @@ export class TraductorController {
         this.esMetodo = true;
         this.emparejar("PR_Main");
         this.emparejar("TK_Parentesis_Izq");
-        this.traductor = this.traductor + "():\n";
-        this.InsertTraduction(this.traductor);
+        this.traductor = this.traductor + "():";
+        this.InsertTraduction(this.traductor, "cadena");
+        this.InsertTraduction("{", "TK_LlaveIzquierda");
         this.parametroPrincipal();
         this.emparejar("TK_Parentesis_Der");
         this.emparejar("TK_LlaveIzquierda");
@@ -229,8 +231,9 @@ export class TraductorController {
         this.listaDeclaracion();
         this.declaracionComentario();
         this.emparejar("TK_LlaveDerecha");
+        this.InsertTraduction("}", "TK_LlaveDerecha");
         this.traductor = this.traductor + "if __name__ = \"__main__\": \n\tmain()";
-        this.InsertTraduction(this.traductor);
+        this.InsertTraduction(this.traductor, "cadena");
         this.esMetodo = false;
     }
 
@@ -240,14 +243,17 @@ export class TraductorController {
         this.emparejar("Identificador");
         this.emparejar("TK_Parentesis_Izq");
         this.declaracionParametros();
-        this.traductor = this.traductor  + "):\n\t";
+        this.traductor = this.traductor  + "):";
+        this.InsertTraduction(this.traductor, "cadena");
+        this.InsertTraduction("{", "TK_LlaveIzquierda");
+
         this.emparejar("TK_Parentesis_Der");
         this.emparejar("TK_LlaveIzquierda");
         this.declaracionComentario();
         this.listaDeclaracion();
         this.declaracionComentario();
         this.emparejar("TK_LlaveDerecha");
-        this.InsertTraduction(this.traductor);
+        this.InsertTraduction("}", "TK_LlaveDerecha");
         this.esMetodo = false;
     }
 
@@ -262,122 +268,6 @@ export class TraductorController {
             //EPSILON
         }
     }
-
-    public declaracionMetodo() {
-        this.declaracionComentario();
-        this.metodo();
-        this.declaracionComentario();
-        this.otroMetodo();
-        this.declaracionComentario();
-    }
-
-    public metodo() {
-        if(this.currentToken!=null) {
-            if (this.currentToken.description == "PR_void")
-            {
-                this.emparejar("PR_void");
-                this.emparejar("Identificador");
-                this.emparejar("TK_Parentesis_Izq");
-                this.declaracionParametros();
-                this.emparejar("TK_Parentesis_Der");
-                this.emparejar("TK_LlaveIzquierda");
-                this.declaracionComentario();
-                this.listaDeclaracion();
-                this.declaracionComentario();
-                this.emparejar("TK_LlaveDerecha");
-            } else if (this.currentToken.description == "PR_int")
-            {
-                this.emparejar("PR_int");
-                this.emparejar("Identificador");
-                this.emparejar("TK_Parentesis_Izq");
-                this.declaracionParametros();
-                this.emparejar("TK_Parentesis_Der");
-                this.emparejar("TK_LlaveIzquierda");
-                this.declaracionComentario();
-                this.listaDeclaracion();
-                this.declaracionComentario();
-                this.emparejar("PR_return");
-                this.emparejar("Identificador");
-                this.emparejar("TK_PuntoComa");
-                this.emparejar("TK_LlaveDerecha");
-            } else if (this.currentToken.description == "PR_double")
-            {
-                this.emparejar("PR_double");
-                this.emparejar("Identificador");
-                this.emparejar("TK_Parentesis_Izq");
-                this.declaracionParametros();
-                this.emparejar("TK_Parentesis_Der");
-                this.emparejar("TK_LlaveIzquierda");
-                this.declaracionComentario();
-                this.listaDeclaracion();
-                this.declaracionComentario();
-                this.emparejar("PR_return");
-                this.emparejar("Identificador");
-                this.emparejar("TK_PuntoComa");
-                this.emparejar("TK_LlaveDerecha");
-            } else if (this.currentToken.description == "PR_char")
-            {
-                this.emparejar("PR_char");
-                this.emparejar("Identificador");
-                this.emparejar("TK_Parentesis_Izq");
-                this.declaracionParametros();
-                this.emparejar("TK_Parentesis_Der");
-                this.emparejar("TK_LlaveIzquierda");
-                this.declaracionComentario();
-                this.listaDeclaracion();
-                this.declaracionComentario();
-                this.emparejar("PR_return");
-                this.emparejar("Identificador");
-                this.emparejar("TK_PuntoComa");
-                this.emparejar("TK_LlaveDerecha");
-            } else if (this.currentToken.description == "PR_bool")
-            {
-                this.emparejar("PR_bool");
-                this.emparejar("Identificador");
-                this.emparejar("TK_Parentesis_Izq");
-                this.declaracionParametros();
-                this.emparejar("TK_Parentesis_Der");
-                this.emparejar("TK_LlaveIzquierda");
-                this.declaracionComentario();
-                this.listaDeclaracion();
-                this.declaracionComentario();
-                this.emparejar("PR_return");
-                this.emparejar("Identificador");
-                this.emparejar("TK_PuntoComa");
-                this.emparejar("TK_LlaveDerecha");
-            } else if (this.currentToken.description == "PR_String")
-            {
-                this.emparejar("PR_String");
-                this.emparejar("Identificador");
-                this.emparejar("TK_Parentesis_Izq");
-                this.declaracionParametros();
-                this.emparejar("TK_Parentesis_Der");
-                this.emparejar("TK_LlaveIzquierda");
-                this.declaracionComentario();
-                this.listaDeclaracion();
-                this.declaracionComentario();
-                this.emparejar("PR_return");
-                this.emparejar("Identificador");
-                this.emparejar("TK_PuntoComa");
-                this.emparejar("TK_LlaveDerecha");
-            }
-        }
-    }
-
-    public otroMetodo() {
-        if(this.currentToken!=null) {
-            if(this.dataType.includes(this.currentToken.getDescription())) {
-                this.declaracionComentario();
-                this.metodo();
-                this.declaracionComentario();
-                this.otroMetodo();
-                this.declaracionComentario();
-            } else {
-                //EPSILON
-            }
-        }
-    }
-
     //DECLARACION PARAMETROS
     public declaracionParametros(){
         if(this.dataType.includes(this.currentToken.getDescription())) {
@@ -405,10 +295,7 @@ export class TraductorController {
         }
     }
 
-    
 
-
-    
 //#region TRADUCIDOS
     //DECLARACION COMENTARIO
     public declaracionComentario() {
@@ -420,14 +307,14 @@ export class TraductorController {
             if (this.currentToken.description == ("ComentarioLinea"))
             {
                 
-                this.traductor = this.traductor + '\n' + this.currentToken.getLexema().replace("//", "#") + '\n';
-                this.InsertTraduction(this.traductor);
+                this.traductor = this.traductor + this.currentToken.getLexema().replace("//", "#");
+                this.InsertTraduction(this.traductor, "cadena");
                 this.emparejar("ComentarioLinea");
             } else if (this.currentToken.description == ("ComentarioMultilinea"))
             {
-                this.traductor = this.traductor + "\n" +  this.currentToken.getLexema().replace("/*", "'''") ;
-                this.traductor = this.traductor.replace("*/", "'''") + "\n" ;
-                this.InsertTraduction(this.traductor);
+                this.traductor = this.traductor + this.currentToken.getLexema().replace("/*", "'''") ;
+                this.traductor = this.traductor.replace("*/", "'''");
+                this.InsertTraduction(this.traductor, "cadena");
                 this.emparejar("ComentarioMultilinea");
             }
             else
@@ -457,7 +344,6 @@ export class TraductorController {
         if(this.currentToken != null) {
             if(this.dataType.includes(this.currentToken.getDescription())) {
                 this.declaracionVariable();
-                this.InsertTraduction(this.traductor);
             } else if (this.currentToken.description == ("ComentarioLinea")
             || this.currentToken.description == ("ComentarioMultilinea"))
             {
@@ -466,43 +352,34 @@ export class TraductorController {
             } else if (this.currentToken.description == ("PR_if"))
             {
                 this.DeclaracionIf();
-                this.InsertTraduction(this.traductor);
             } else if (this.currentToken.description == ("PR_for"))
             {
                 this.declaracionFor();
-                this.InsertTraduction(this.traductor);
+                
             } else if (this.currentToken.description == ("PR_while"))
             {
                 this.declaracionWhile();
-                this.InsertTraduction(this.traductor);
             } else if (this.currentToken.description == ("PR_switch"))
             {
                 this.declaracionSwitch();
-                this.InsertTraduction(this.traductor);
             } else if (this.currentToken.description == ("PR_do"))
             {
                 this.declaracionDoWhile();
-                this.InsertTraduction(this.traductor);
             } else if (this.currentToken.description == ("PR_Console"))
             {
                 this.declaracionConsole();
-                this.InsertTraduction(this.traductor);
             } else if (this.currentToken.description == ("Identificador"))
             {
                 this.declaracionSinTipo();
-                this.InsertTraduction(this.traductor);
             } else if (this.currentToken.description == ("PR_return"))
             {
                 this.declaracionRetorno();
-                this.InsertTraduction(this.traductor);
             } else if (this.currentToken.description == ("PR_break"))
             {
                 this.break();
-                this.InsertTraduction(this.traductor);
             } else if (this.currentToken.description == ("PR_continue"))
             {
                 this.continue();
-                this.InsertTraduction(this.traductor);
             } else {
                 //EPSILON
             }
@@ -511,16 +388,15 @@ export class TraductorController {
 
     public declaracionRetorno() {
         if(this.esMetodo == true) {
-            this.traductor = this.traductor + "\t return \n";
+            this.traductor = this.traductor + "return";
             this.emparejar("PR_return");
             //TIPO DE RETORNO
             this.emparejar("TK_PuntoComa");
         } else if(this.esFuncion == true) {
             this.emparejar("PR_return");
             //TIPO DE RETORNO
-            this.traductor = this.traductor + "\t return ";
+            this.traductor = this.traductor + "return ";
             this.expresion();
-            this.traductor = this.traductor  + "\n";
             this.emparejar("TK_PuntoComa");
         }
         this.listaDeclaracion();
@@ -536,7 +412,7 @@ export class TraductorController {
         this.traductor = this.traductor + ")";
         this.emparejar("TK_Parentesis_Der");
         this.emparejar("TK_PuntoComa");
-        this.InsertTraduction(this.traductor);
+        this.InsertTraduction(this.traductor, "cadena");
         this.listaDeclaracion();
     }
 
@@ -557,7 +433,7 @@ export class TraductorController {
         this.listaAsignacion();
         this.asignacionVariable();
         this.emparejar("TK_PuntoComa");
-        this.traductor = this.traductor + "\n";
+        this.InsertTraduction(this.traductor, "cadena");
     }
 
     public otraAsignacion() {
@@ -631,11 +507,14 @@ export class TraductorController {
         this.condicion();
         this.emparejar("TK_Parentesis_Der");
         this.emparejar("TK_LlaveIzquierda");
-        this.traductor = this.traductor + ":\n\t";
+
+        this.InsertTraduction(this.traductor + ":", "cadena");
+        this.InsertTraduction("{", "TK_LlaveIzquierda");
         this.declaracionComentario();
         this.listaDeclaracion();
         this.declaracionComentario();
         this.emparejar("TK_LlaveDerecha");
+        this.InsertTraduction("}", "TK_LlaveDerecha");
         this.declaracionComentario();
         this.else();
         this.declaracionComentario();
@@ -686,7 +565,7 @@ export class TraductorController {
             //EPSILON
         }
     }
-
+    /* PRUEBA*/
     public tipoElse() {
         if(this.currentToken.description == 'PR_if') {
             this.traductor = this.traductor + "elif ";
@@ -694,11 +573,14 @@ export class TraductorController {
             this.declaracionComentario();
             this.declaracionElseIf();
             this.declaracionComentario();
+            this.InsertTraduction("}", "TK_LlaveDerecha"); 
         } else if(this.currentToken.description == 'TK_LlaveIzquierda') {
             this.traductor = this.traductor + "else: "; 
             this.declaracionComentario();
             this.declaracionElse();
             this.declaracionComentario();
+            this.InsertTraduction("}", "TK_LlaveDerecha");
+
         }
     }
 
@@ -717,7 +599,8 @@ export class TraductorController {
             this.condicion();
             this.emparejar("TK_Parentesis_Der");
             this.emparejar("TK_LlaveIzquierda");
-            this.traductor = this.traductor + ":\n\t";
+            this.InsertTraduction(this.traductor, "cadena");
+            this.InsertTraduction("{", "TK_LlaveIzquierda");
             this.declaracionComentario();
             this.listaDeclaracion();
             this.declaracionComentario();
@@ -744,7 +627,8 @@ export class TraductorController {
     public declaracionElse() {
         this.emparejar("TK_LlaveIzquierda");
         this.declaracionComentario();
-        this.traductor = this.traductor + ":\n\t";
+        this.InsertTraduction(this.traductor + ":", "cadena");
+        this.InsertTraduction("{", "TK_LlaveIzquierda");
         this.listaDeclaracion();
         this.declaracionComentario();
         this.emparejar("TK_LlaveDerecha");
@@ -765,7 +649,9 @@ export class TraductorController {
         this.emparejar("TK_PuntoComa");
         //CONDICION
         this.condicionFor();
-        this.traductor = this.traductor + "):\n\t";
+        this.traductor = this.traductor + "):";
+        this.InsertTraduction(this.traductor, "cadena");
+        this.InsertTraduction("{", "TK_LlaveIzquierda");
         this.emparejar("TK_PuntoComa");
         //INCREMENTO
         this.emparejar("Identificador");
@@ -782,6 +668,7 @@ export class TraductorController {
         this.listaDeclaracion();
         this.declaracionComentario();
         this.emparejar("TK_LlaveDerecha");
+        this.InsertTraduction("}", "TK_LlaveDerecha");
         this.esSwitchRepeticion--;
         this.esRepeticion--;
         this.declaracionComentario();
@@ -799,10 +686,14 @@ export class TraductorController {
         this.condicion();
         this.emparejar("TK_Parentesis_Der");
         this.emparejar("TK_LlaveIzquierda");
-        this.traductor = this.traductor + ":\n\t";
+        this.traductor = this.traductor + ":";
+        this.InsertTraduction(this.traductor, "cadena");
+        this.InsertTraduction("{", "TK_LlaveIzquierda");
+
         this.declaracionComentario();
         this.listaDeclaracion();
         this.declaracionComentario();
+        this.InsertTraduction("}", "TK_LlaveDerecha");
         this.emparejar("TK_LlaveDerecha");
         this.esSwitchRepeticion--;
         this.esRepeticion--;
@@ -815,7 +706,13 @@ export class TraductorController {
         this.esSwitchRepeticion++;
         this.emparejar("PR_switch");
         this.emparejar("TK_Parentesis_Izq");
-        this.traductor = this.traductor + "def switch(case,"+this.currentToken.getLexema() + "):\n\tswitcher = {\n\t";
+        this.traductor = this.traductor + "def switch(case,"+this.currentToken.getLexema() + "):";
+        this.InsertTraduction(this.traductor, "cadena");
+        this.InsertTraduction("{", "TK_LlaveIzquierda");
+        this.InsertTraduction("switcher = {", "cadena");
+
+        this.InsertTraduction("{", "TK_LlaveIzquierda");
+
         this.emparejar("Identificador");
         this.emparejar("TK_Parentesis_Der");
         this.emparejar("TK_LlaveIzquierda");
@@ -824,6 +721,9 @@ export class TraductorController {
         this.declaracionComentario();
         this.default();
         this.traductor = this.traductor + "}";
+        this.InsertTraduction(this.traductor, "cadena");
+        this.InsertTraduction("}", "TK_LlaveDerecha");
+        
         this.declaracionComentario();
         this.emparejar("TK_LlaveDerecha");
         this.esSwitchRepeticion--;
@@ -845,11 +745,13 @@ export class TraductorController {
             if(this.currentToken.description == 'PR_case') {
                 this.emparejar("PR_case");
                 this.tipoCase();
-                this.traductor = this.traductor + ":";
+                this.InsertTraduction(this.traductor + ":", "cadena");
+                this.InsertTraduction("{", "TK_LlaveIzquierda");
                 this.emparejar("TK_DosPuntos");
                 this.declaracionComentario();
                 this.listaDeclaracion();
                 this.declaracionComentario();
+                this.InsertTraduction("}", "TK_LlaveDerecha");
             } else {
                 //EPSILON
             }
@@ -891,6 +793,7 @@ export class TraductorController {
             if(this.currentToken.description != null) {
                 this.emparejar("PR_break");
                 this.traductor = this.traductor + "break";
+                this.InsertTraduction(this.traductor, "cadena");
                 this.emparejar("TK_PuntoComa");
                 this.listaDeclaracion();
             }
@@ -902,6 +805,8 @@ export class TraductorController {
             if(this.currentToken.description != null) {
                 this.emparejar("PR_continue");
                 this.traductor = this.traductor + "continue";
+                this.InsertTraduction(this.traductor, "cadena");
+
                 this.emparejar("TK_PuntoComa");
                 this.listaDeclaracion();
             }
@@ -911,12 +816,15 @@ export class TraductorController {
     public default() {
         if(this.currentToken != null) {
             if(this.currentToken.description == 'PR_default') {
-                this.traductor = this.traductor + ",default:\n";
+                this.traductor = this.traductor + ",default";
+                this.InsertTraduction(this.traductor + ":", "cadena");
+                this.InsertTraduction("{", "TK_LlaveIzquierda");
                 this.emparejar("PR_default");
                 this.emparejar("TK_DosPuntos");
                 this.declaracionComentario();
                 this.listaDeclaracion();
                 this.declaracionComentario();
+                this.InsertTraduction("}", "TK_LlaveDerecha");
             } else {
                 //EPSILON
             }
@@ -1011,7 +919,9 @@ export class TraductorController {
         this.esSwitchRepeticion++;
         this.esRepeticion++;
         this.emparejar("PR_do");
-        this.traductor = this.traductor + "while True: \n"
+        this.traductor = this.traductor + "while True:"
+        this.InsertTraduction(this.traductor, "cadena");
+        this.InsertTraduction("{", "TK_LlaveIzquierda");
         this.emparejar("TK_LlaveIzquierda");
         this.declaracionComentario();
         this.listaDeclaracion();
@@ -1022,7 +932,12 @@ export class TraductorController {
         //CONDICION
         this.traductor = this.traductor + "if (";
         this.condicion();
-        this.traductor = this.traductor + "): \n\t break";
+        this.traductor = this.traductor + "):";
+        this.InsertTraduction(this.traductor, "cadena");
+        this.InsertTraduction("{", "TK_LlaveIzquierda");
+        this.InsertTraduction("break", "cadena");
+        this.InsertTraduction("}", "TK_LlaveDerecha");
+        this.InsertTraduction("}", "TK_LlaveDerecha");
         this.emparejar("TK_Parentesis_Der");
         this.emparejar("TK_PuntoComa");
         this.esSwitchRepeticion--;
@@ -1040,6 +955,7 @@ export class TraductorController {
         this.traductor = this.traductor + "=";
         this.expresion();
         this.emparejar("TK_PuntoComa");
+        this.InsertTraduction(this.traductor, "cadena");
         this.listaDeclaracion();
     }
 
@@ -1210,9 +1126,9 @@ export class TraductorController {
     }
 
 
-    public InsertTraduction( str: string ){
-        if (str != "") {
-            this.arrayTraducido.push( str );
+    public InsertTraduction( lexema: string, description: string ){
+        if (lexema != "") {
+            this.arrayTraducido.push( new TokenPyton(lexema, description) );
         }  
         this.traductor = "";
     }
@@ -1220,9 +1136,30 @@ export class TraductorController {
         this.arrayTraducido = [];
         this.traductor = "";
     } 
-    public ShowTraduction(){ 
-        this.arrayTraducido.forEach(e => {
-            console.log(e);
-        });
+    public ShowTraduction(): string {
+        var i:number = 0; 
+        var tabs:string = "";
+        var newElement:string = "";
+        for (let index = 0; index < this.arrayTraducido.length; index++) {
+            const element:TokenPyton = this.arrayTraducido[index];
+            
+            if (element.getDescription() == "TK_LlaveIzquierda") {
+                i++;
+                tabs = "";
+                for (let j = 0; j < i; j++) {
+                    tabs = tabs + "\t";
+                }    
+            } else if(element.getDescription() == "TK_LlaveDerecha"){
+                i--;
+                tabs = "";
+                for (let j = 0; j < i; j++) {
+                    tabs = tabs + "\t";
+                }
+            } else {
+                newElement = newElement + "\n" + tabs + element.getLexema();
+                console.log(tabs + element.getLexema());
+            }
+        }
+        return newElement;   
     }
 }

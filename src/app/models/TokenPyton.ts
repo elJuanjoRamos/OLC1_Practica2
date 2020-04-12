@@ -14,10 +14,7 @@ export class TokenPyton {
     }
     
     toString(){
-        return {
-            "lexema" : this.lexema,
-            "description" : this.description
-        };
+        return this.lexema;
     }
 }
 

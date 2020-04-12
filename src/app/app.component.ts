@@ -33,7 +33,7 @@ export class AppComponent {
 
 
   /*Prueva*/
-  arrayTabs: number[] = [1];
+  arrayTabs: number[] = [];
   cargarTabs(){
     this.arrayTabs.push((this.arrayTabs.length + 1));
   }
@@ -72,6 +72,10 @@ export class AppComponent {
     this.traductorController.obtenerLista(TokenController.getInstance().getArrayListToken);
     console.log("---------------");
     this.traductorController.ShowTraduction();
+    const textArea = document.getElementById("textAreaTraduccion");
+    textArea.textContent = "";
+    textArea.textContent = this.traductorController.ShowTraduction();
+    
   }
 
 
