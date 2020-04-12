@@ -21,7 +21,7 @@ export class AppComponent {
   sintacticoAnalizer: any;
   tokenController: any;
   traductorController: any;
-  
+  array:any[] = [];
 
   constructor() { 
     this.inputVar = "";
@@ -75,6 +75,21 @@ export class AppComponent {
     const textArea = document.getElementById("textAreaTraduccion");
     textArea.textContent = "";
     textArea.textContent = this.traductorController.ShowTraduction();
+
+
+    /* */
+    const textAreaHtml = document.getElementById("textAreaHtml");
+    textAreaHtml.textContent = "";
+    textAreaHtml.textContent = this.traductorController.ShowHTMLCode();
+
+    /* */
+    const textAreaJson = document.getElementById("textAreaJson");
+    textAreaJson.textContent = "";
+    textAreaJson.textContent = this.traductorController.ShowJSONCode();
+
+    
+    this.array = this.traductorController.GetVariables();
+    console.log("entrada");
     
   }
 

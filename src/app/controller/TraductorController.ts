@@ -1,5 +1,6 @@
 import { Token } from '../models/Token';
 import { TokenPyton } from '../models/TokenPyton';
+import { TokenVariable } from '../models/TokenVariable';
 
 export class TraductorController {
 
@@ -18,9 +19,22 @@ export class TraductorController {
     //Prueba 
     private traductor: string = "";
     private arrayTraducido: TokenPyton[] = [];
+    private htmlElements: string[] = [];
+    private jsonElements: TokenPyton[] = [];
     private dataType = ['PR_void','PR_int', 'PR_double', 'PR_char', 'PR_bool', 'PR_String'];
+    
+    //PARTE DE TABLA DE SIMBOLOS
+    //arreglo que guarda las variables
+    private arrayTokenVariable: TokenVariable[] = [];
+    //tipo de la variable
+    private type: string = "";
+    private typeTemp: string = "";
+    //identificador de la variable
+    private id: string = "";
+    //fila  de la variable
+    private row: number = 0;
 
-   
+
     constructor(){
     }
 
@@ -100,12 +114,13 @@ export class TraductorController {
 
 
         if(this.dataType.includes(this.currentToken.description)) {
-            
+            this.type = this.currentToken.getLexema();
+            this.typeTemp = this.currentToken.getLexema();
             this.emparejar(this.currentToken.description);
-
             //traduce el identificicador
             this.traductor = this.traductor + this.currentToken.getLexema();
-
+            this.id = this.currentToken.getLexema();
+            this.row = this.currentToken.getRow();
             this.emparejar("Identificador");
             this.asignacionVariableGlobal();
             this.currentToken = this.arrayListToken[this.index];
@@ -117,22 +132,26 @@ export class TraductorController {
                 this.declaracionParametros();
                 this.traductor = this.traductor+ "):";
                 this.InsertTraduction(this.traductor, "cadena");
-                this.InsertTraduction("{", "TK_DosPuntos");
+                this.InsertTraduction("{", "TK_LlaveIzquierda");
                 this.emparejar("TK_Parentesis_Der");
                 this.emparejar("TK_LlaveIzquierda");
                 this.declaracionComentario();
                 this.listaDeclaracion();
                 this.declaracionComentario();
+                this.InsertTraduction("}", "TK_LlaveDerecha");
                 this.emparejar("TK_LlaveDerecha");
                 this.esFuncion = false;
             } else if(this.currentToken.description == "TK_Coma") {
                 this.traductor = "var " + this.traductor;
+                this.InsertVariable(this.type, this.id, this.row);   
+                this.type = this.typeTemp;
                 this.listaAsignacionGlobal();
                 this.emparejar("TK_PuntoComa");
             } else if(this.currentToken.description == "TK_PuntoComa") {
                 this.traductor = "var " + this.traductor; 
                 this.emparejar("TK_PuntoComa");
                 this.InsertTraduction(this.traductor, "cadena");
+                this.InsertVariable(this.type, this.id, this.row);   
             }
         
     }
@@ -143,7 +162,11 @@ export class TraductorController {
     }
 
     public listaAsignacionGlobal2() {
-        this.traductor = this.traductor + this.currentToken.getLexema(); 
+        this.traductor = this.traductor + this.currentToken.getLexema();
+        this.id = this.currentToken.getLexema();
+        this.row = this.currentToken.getRow();
+        this.InsertVariable(this.type, this.id, this.row); 
+        this.type = this.typeTemp;
         this.emparejar("Identificador");
         this.asignacionVariableGlobal();
         this.masElementosGlobal();
@@ -397,6 +420,7 @@ export class TraductorController {
             //TIPO DE RETORNO
             this.traductor = this.traductor + "return ";
             this.expresion();
+            this.InsertTraduction(this.traductor, "cadena");
             this.emparejar("TK_PuntoComa");
         }
         this.listaDeclaracion();
@@ -434,6 +458,7 @@ export class TraductorController {
         this.asignacionVariable();
         this.emparejar("TK_PuntoComa");
         this.InsertTraduction(this.traductor, "cadena");
+        this.InsertVariable(this.type, this.id, this.row);
     }
 
     public otraAsignacion() {
@@ -455,19 +480,26 @@ export class TraductorController {
         this.traductor = this.traductor+ "var ";
         if(this.currentToken.description == "PR_int") {
             this.emparejar("PR_int");
+            this.type = "int";
         } else if(this.currentToken.description == "PR_double") {
             this.emparejar("PR_double");
+            this.type = "double";
         } else if(this.currentToken.description == "PR_char") {
             this.emparejar("PR_char");
+            this.type = "char";
         } else if(this.currentToken.description == "PR_bool") {
             this.emparejar("PR_bool");
+            this.type = "bool";
         } else if(this.currentToken.description == "PR_String") {
             this.emparejar("PR_String");
+            this.type = "String";
         }
     }
 
     public listaAsignacion() {
         this.traductor = this.traductor + this.currentToken.getLexema();
+        this.id = this.currentToken.getLexema();
+        this.row = this.currentToken.getRow();
         this.emparejar("Identificador");
         this.masElementos();
     }
@@ -1054,6 +1086,9 @@ export class TraductorController {
         || this.currentToken.description == ("PR_true")
         || this.currentToken.description == ("PR_false"))
         {
+            if (this.currentToken.description == "Cadena_HTML") {
+                this.getHtml(this.currentToken.getLexema());
+            }
             this.traductor = this.traductor +this.currentToken.getLexema(); 
             this.emparejar(this.currentToken.description);
         } else if (this.currentToken.description == ("Identificador"))
@@ -1097,8 +1132,6 @@ export class TraductorController {
             //EPSILON
         }
     }
-    
-
     public emparejar(token:string)
     {
         if(this.currentToken!=null){
@@ -1126,16 +1159,99 @@ export class TraductorController {
     }
 
 
+    public InsertVariable(type: string, id: string, row: number){
+        this.arrayTokenVariable.push( new TokenVariable(type, id, row) );
+        this.row = 0;
+        this.id = this.type = "";
+    }
+
+    public GetVariables(): TokenVariable[] {
+        return this.arrayTokenVariable;
+    }
+    /* OBTIENE LA CADENA HTML A TRADUCIR*/
+    public getHtml( str:string ){
+        str = str.replace("'", " ").trim();
+        var newElement: string = "";
+
+        for (let i = 0; i < str.length; i++) {
+            const element = str[i];
+
+            if(element == "<"){
+                if(newElement != ""){
+                    this.htmlElements.push(newElement.trim());
+                }  
+                newElement = "";
+                newElement += element; 
+                
+                for (let j = i+1; j < str.length; j++) {
+                    const e = str[j];
+                    newElement += e;
+                    if( e == ">"){
+                        if( newElement.includes("</") ){
+                            this.htmlElements.push("}");
+                            this.htmlElements.push(newElement.trim());
+                        } else {
+                            this.htmlElements.push(newElement.trim());
+                            this.htmlElements.push("{");
+                        }
+                        i  = j;  
+                        newElement = "";
+                        break;
+                    }  
+                }
+            } else {
+                newElement += element; 
+            }   
+        }
+        this.htmlElements.forEach(e => {
+            if(!(e.includes("</"))){
+                if( e.includes("<") && e.includes(">")){
+                   if (e.toLocaleLowerCase().includes("style")) {
+                    
+                    var splited = e.toLowerCase().split("style=");
+
+                    console.log(splited[0]);
+                    console.log(splited[1]);
+                    
+                    this.jsonElements.push( new TokenPyton( '"' + splited[0].replace('<', "").replace(">", "").toLocaleUpperCase() + '"' + ":{", "cadena") );
+                    this.jsonElements.push( new TokenPyton("{", "TK_LlaveIzquierda") );         
+                    this.jsonElements.push( new TokenPyton( '"' + "STYLE" + '":' + splited[1].replace('<', "").replace(">", ""), "cadena") );
+                    
+                } else {
+                        e = e.replace("<", '"').replace(">", '"');
+                        this.jsonElements.push( new TokenPyton(e.toLocaleUpperCase() + ":{", "cadena") );
+                        this.jsonElements.push( new TokenPyton("{", "TK_LlaveIzquierda") );         
+                    }
+                } else {
+                    if((e != "}") && (e != "{")){
+                        this.jsonElements.push( new TokenPyton("\"TEXTO\": "+ '"' +e + '"', "cadena") );
+                    }
+                }
+            } else {
+                this.jsonElements.push( new TokenPyton("}", "cadena") );
+                this.jsonElements.push( new TokenPyton("}", "TK_LlaveDerecha") );
+            }
+        });
+       
+    }
+    /*INSERTA ELEMENTOS EN EL ARREGLO DE TRADUCCION*/
     public InsertTraduction( lexema: string, description: string ){
         if (lexema != "") {
             this.arrayTraducido.push( new TokenPyton(lexema, description) );
         }  
         this.traductor = "";
     }
+    /* LIMPIA LOS ARREGLOS*/
     public ClearTraduction(){
         this.arrayTraducido = [];
+        this.arrayTokenVariable = [];
+        this.htmlElements = [];
+        this.jsonElements = [];
         this.traductor = "";
     } 
+
+
+    /* METODOS PARA ORDENAR LA TRADUCCION*/
     public ShowTraduction(): string {
         var i:number = 0; 
         var tabs:string = "";
@@ -1157,7 +1273,56 @@ export class TraductorController {
                 }
             } else {
                 newElement = newElement + "\n" + tabs + element.getLexema();
-                console.log(tabs + element.getLexema());
+            }
+        }
+        return newElement;   
+    }
+    public ShowHTMLCode(): string {
+        var i:number = 0; 
+        var tabs:string = "";
+        var newElement:string = "";
+        for (let index = 0; index < this.htmlElements.length; index++) {
+            const element:string = this.htmlElements[index];
+            
+            if (element == "{") {
+                i++;
+                tabs = "";
+                for (let j = 0; j < i; j++) {
+                    tabs = tabs + "\t";
+                }    
+            } else if(element == "}"){
+                i--;
+                tabs = "";
+                for (let j = 0; j < i; j++) {
+                    tabs = tabs + "\t";
+                }
+            } else {
+                newElement = newElement + "\n" + tabs + element;
+            }
+        }
+        return newElement;   
+    }
+    public ShowJSONCode(): string {
+        var i:number = 0; 
+        var tabs:string = "";
+        var newElement:string = "";
+        for (let index = 0; index < this.jsonElements.length; index++) {
+            const element:TokenPyton = this.jsonElements[index];
+            
+            if (element.getDescription() == "TK_LlaveIzquierda") {
+                i++;
+                tabs = "";
+                for (let j = 0; j < i; j++) {
+                    tabs = tabs + "\t";
+                }    
+            } else if(element.getDescription() == "TK_LlaveDerecha"){
+                i--;
+                tabs = "";
+                for (let j = 0; j < i; j++) {
+                    tabs = tabs + "\t";
+                }
+            } else {
+                newElement = newElement + "\n" + tabs + element.getLexema();
             }
         }
         return newElement;   

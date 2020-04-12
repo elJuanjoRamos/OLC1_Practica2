@@ -150,7 +150,7 @@ export class LexicoAnalizer {
                         state = 1;
                     }
                     else {
-                        const reservada = ['int', 'String', 'double', 'char', 'bool', 'public', 'class',
+                        const reservada = ['int', 'String', 'string' ,'double', 'char', 'bool', 'public', 'class',
                         'static', 'void', 'Main', 'return', 'true', 'false', 'for', 'if', 'while', 'else', 
                         'switch', 'case', 'break', 'null', 'default', 'do', 'Console', 'Write', 'continue'];
 
