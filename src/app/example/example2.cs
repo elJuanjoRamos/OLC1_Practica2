@@ -42,10 +42,13 @@ public class Example
 
     void Main(String[] args)
     {
-       
+        if(a=b) {
+
+        }
+       return;
     }
     void OtroMetodo(String a, bool b, char c, double d, int e) {
-
+        break;
     }
 
     int metodo(int a, int b, int c) {

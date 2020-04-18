@@ -15,14 +15,16 @@ export class TraductorController {
     private esFuncion:boolean = false;
     private esSwitchRepeticion:number = 0;
     private esRepeticion:number = 0;
+    private contador:number = 0;
 
     //Prueba 
     private traductor: string = "";
     private arrayTraducido: TokenPyton[] = [];
     private htmlElements: string[] = [];
     private jsonElements: TokenPyton[] = [];
-    private dataType = ['PR_void','PR_int', 'PR_double', 'PR_char', 'PR_bool', 'PR_String'];
+    private dataType = ['PR_void','PR_int', 'PR_double', 'PR_char', 'PR_bool', 'PR_string'];
     
+
     //PARTE DE TABLA DE SIMBOLOS
     //arreglo que guarda las variables
     private arrayTokenVariable: TokenVariable[] = [];
@@ -59,25 +61,34 @@ export class TraductorController {
         this.declaracionComentario();
     }
 
-    //CLASE Y METODO PRINCIPAL
+     //CLASE Y METODO PRINCIPAL
     public clase() {
-        if(this.currentToken.description == "PR_public") {
+        if(this.currentToken.getDescription() == "PR_public") {
             this.emparejar("PR_public");
             this.emparejar("PR_class");
+            this.traductor = "class " + this.currentToken.getLexema() + ":";
+            this.InsertTraduction(this.traductor, "cadena");
+            this.InsertTraduction("{", "TK_LlaveIzquierda");
             this.emparejar("Identificador");
             this.emparejar("TK_LlaveIzquierda");
             this.declaracionComentario();
             this.declaracionGlobal();
             this.declaracionComentario();
             this.emparejar("TK_LlaveDerecha");
+            this.InsertTraduction("}", "TK_LlaveDerecha");
+            
         } else {
             this.emparejar("PR_class");
+            this.traductor = "class " + this.currentToken.getLexema() + ":";
+            this.InsertTraduction(this.traductor, "cadena");
+            this.InsertTraduction("{", "TK_LlaveIzquierda");
             this.emparejar("Identificador");
             this.emparejar("TK_LlaveIzquierda");
             this.declaracionComentario();
             this.declaracionGlobal();
             this.declaracionComentario();
             this.emparejar("TK_LlaveDerecha");
+            this.InsertTraduction("}", "TK_LlaveDerecha");
         }
     }
 
@@ -90,16 +101,16 @@ export class TraductorController {
     }
 
     public declaracion(){
-        if(this.currentToken.description!=null) {
-            if(this.currentToken.description == 'PR_void') {
+        if(this.currentToken.getDescription()!=null) {
+            if(this.currentToken.getDescription() == 'PR_void') {
                 this.emparejar("PR_void");
                 this.currentToken = this.arrayListToken[this.index];
-                if(this.currentToken.description == 'PR_Main') {
+                if(this.currentToken.getDescription() == 'PR_main') {
                     this.traductor =  this.traductor + "def main ";
                     this.declaracionComentario();
                     this.metodoPrincipal();
                     this.declaracionComentario();
-                } else if(this.currentToken.description == 'Identificador') {
+                } else if(this.currentToken.getDescription() == 'Identificador') {
                     this.metodoVoid();
                 }
             } else if(this.dataType.includes(this.currentToken.getDescription())) {
@@ -113,10 +124,10 @@ export class TraductorController {
     public tipoDeclaracion() {
 
 
-        if(this.dataType.includes(this.currentToken.description)) {
+        if(this.dataType.includes(this.currentToken.getDescription())) {
             this.type = this.currentToken.getLexema();
             this.typeTemp = this.currentToken.getLexema();
-            this.emparejar(this.currentToken.description);
+            this.emparejar(this.currentToken.getDescription());
             //traduce el identificicador
             this.traductor = this.traductor + this.currentToken.getLexema();
             this.id = this.currentToken.getLexema();
@@ -125,7 +136,7 @@ export class TraductorController {
             this.asignacionVariableGlobal();
             this.currentToken = this.arrayListToken[this.index];
             //ES FUNCION
-            if(this.currentToken.description == "TK_Parentesis_Izq") {
+            if(this.currentToken.getDescription() == "TK_Parentesis_Izq") {
                 this.esFuncion = true;
                 this.traductor = "def " + this.traductor + "(";
                 this.emparejar("TK_Parentesis_Izq");
@@ -141,13 +152,13 @@ export class TraductorController {
                 this.InsertTraduction("}", "TK_LlaveDerecha");
                 this.emparejar("TK_LlaveDerecha");
                 this.esFuncion = false;
-            } else if(this.currentToken.description == "TK_Coma") {
+            } else if(this.currentToken.getDescription() == "TK_Coma") {
                 this.traductor = "var " + this.traductor;
                 this.InsertVariable(this.type, this.id, this.row);   
                 this.type = this.typeTemp;
                 this.listaAsignacionGlobal();
                 this.emparejar("TK_PuntoComa");
-            } else if(this.currentToken.description == "TK_PuntoComa") {
+            } else if(this.currentToken.getDescription() == "TK_PuntoComa") {
                 this.traductor = "var " + this.traductor; 
                 this.emparejar("TK_PuntoComa");
                 this.InsertTraduction(this.traductor, "cadena");
@@ -173,7 +184,7 @@ export class TraductorController {
     }
 
     public masElementosGlobal() {
-        if(this.currentToken.description == "TK_Coma") {
+        if(this.currentToken.getDescription() == "TK_Coma") {
             this.traductor = this.traductor + ",";
             this.emparejar("TK_Coma");
             this.listaAsignacionGlobal2();
@@ -184,7 +195,7 @@ export class TraductorController {
 
     public asignacionVariableGlobal() {
 
-        if(this.currentToken.description == "TK_Igual") {
+        if(this.currentToken.getDescription() == "TK_Igual") {
             this.emparejar("TK_Igual");
             this.traductor = this.traductor + "=";
             this.expresion();
@@ -194,28 +205,28 @@ export class TraductorController {
     }
 
     public valorVariableGlobal() {
-        if(this.currentToken.description == "Digito") {
+        if(this.currentToken.getDescription() == "Digito") {
             this.emparejar("Digito");
-        } else if(this.currentToken.description == "Cadena") {
+        } else if(this.currentToken.getDescription() == "Cadena") {
             this.emparejar("Cadena");
         //FALTA CARACTER
-        } else if(this.currentToken.description == "Caracter") {
+        } else if(this.currentToken.getDescription() == "Caracter") {
             this.emparejar("Caracter");
-        } else if(this.currentToken.description == "PR_true") {
+        } else if(this.currentToken.getDescription() == "PR_true") {
             this.emparejar("PR_true");
-        } else if(this.currentToken.description == "PR_false") {
+        } else if(this.currentToken.getDescription() == "PR_false") {
             this.emparejar("PR_false");
-        } else if(this.currentToken.description == "Identificador") {
+        } else if(this.currentToken.getDescription() == "Identificador") {
             this.emparejar("Identificador");
             this.valorMetodoGlobal();
         }
     }
 
     public valorMetodoGlobal() {
-        if(this.currentToken.description == "TK_Parentesis_Izq") {
+        if(this.currentToken.getDescription() == "TK_Parentesis_Izq") {
             this.emparejar("TK_Parentesis_Izq");
             this.currentToken = this.arrayListToken[this.index];
-            if(this.currentToken.description == "TK_Parentesis_Der") {
+            if(this.currentToken.getDescription() == "TK_Parentesis_Der") {
                 this.emparejar("TK_Parentesis_Der");
             } else {
                 //LISTADO DE ASIGNACIONES
@@ -229,8 +240,8 @@ export class TraductorController {
     }
 
     public otraDeclaracionGlobal(){
-        if(this.currentToken.description!=null) {
-            if(this.currentToken.description == 'PR_void') {
+        if(this.currentToken.getDescription()!=null) {
+            if(this.currentToken.getDescription() == 'PR_void') {
                 this.declaracion();
                 this.otraDeclaracionGlobal();
             }else if(this.dataType.includes(this.currentToken.getDescription())) {
@@ -242,10 +253,9 @@ export class TraductorController {
 
     public metodoPrincipal() {
         this.esMetodo = true;
-        this.emparejar("PR_Main");
+        this.emparejar("PR_main");
         this.emparejar("TK_Parentesis_Izq");
-        this.traductor = this.traductor + "():";
-        this.InsertTraduction(this.traductor, "cadena");
+        this.InsertTraduction(this.traductor+ "():", "cadena");
         this.InsertTraduction("{", "TK_LlaveIzquierda");
         this.parametroPrincipal();
         this.emparejar("TK_Parentesis_Der");
@@ -281,9 +291,9 @@ export class TraductorController {
     }
 
     public parametroPrincipal() {
-        if (this.currentToken.description == "PR_String")
+        if (this.currentToken.getDescription() == "PR_string")
         {
-            this.emparejar("PR_String");
+            this.emparejar("PR_string");
             this.emparejar("TK_Corchete_Izq");
             this.emparejar("TK_Corchete_Der");
             this.emparejar("Identificador");
@@ -308,7 +318,7 @@ export class TraductorController {
     }
 
     public masParametros() {
-        if(this.currentToken.description == "TK_Coma") {
+        if(this.currentToken.getDescription() == "TK_Coma") {
             this.traductor = this.traductor + ",";
             this.emparejar("TK_Coma");
             this.tipoVariable();
@@ -327,13 +337,13 @@ export class TraductorController {
     }
     comentario() {
         if(this.currentToken!=null) {
-            if (this.currentToken.description == ("ComentarioLinea"))
+            if (this.currentToken.getDescription() == ("ComentarioLinea"))
             {
                 
                 this.traductor = this.traductor + this.currentToken.getLexema().replace("//", "#");
                 this.InsertTraduction(this.traductor, "cadena");
                 this.emparejar("ComentarioLinea");
-            } else if (this.currentToken.description == ("ComentarioMultilinea"))
+            } else if (this.currentToken.getDescription() == ("ComentarioMultilinea"))
             {
                 this.traductor = this.traductor + this.currentToken.getLexema().replace("/*", "'''") ;
                 this.traductor = this.traductor.replace("*/", "'''");
@@ -348,8 +358,8 @@ export class TraductorController {
     }
     public otrosComentarios() {
         if(this.currentToken!=null) {
-            if (this.currentToken.description == ("ComentarioLinea")
-            || this.currentToken.description == ("ComentarioMultilinea"))
+            if (this.currentToken.getDescription() == ("ComentarioLinea")
+            || this.currentToken.getDescription() == ("ComentarioMultilinea"))
             {
                 this.comentario();
                 this.otrosComentarios();
@@ -367,40 +377,38 @@ export class TraductorController {
         if(this.currentToken != null) {
             if(this.dataType.includes(this.currentToken.getDescription())) {
                 this.declaracionVariable();
-            } else if (this.currentToken.description == ("ComentarioLinea")
-            || this.currentToken.description == ("ComentarioMultilinea"))
+            } else if (this.currentToken.getDescription() == ("ComentarioLinea")
+            || this.currentToken.getDescription() == ("ComentarioMultilinea"))
             {
-                this.comentario();
-                this.otrosComentarios();
-            } else if (this.currentToken.description == ("PR_if"))
+                this.declaracionComentario();
+            } else if (this.currentToken.getDescription() == ("PR_if"))
             {
                 this.DeclaracionIf();
-            } else if (this.currentToken.description == ("PR_for"))
+            } else if (this.currentToken.getDescription() == ("PR_for"))
             {
                 this.declaracionFor();
-                
-            } else if (this.currentToken.description == ("PR_while"))
+            } else if (this.currentToken.getDescription() == ("PR_while"))
             {
                 this.declaracionWhile();
-            } else if (this.currentToken.description == ("PR_switch"))
+            } else if (this.currentToken.getDescription() == ("PR_switch"))
             {
                 this.declaracionSwitch();
-            } else if (this.currentToken.description == ("PR_do"))
+            } else if (this.currentToken.getDescription() == ("PR_do"))
             {
                 this.declaracionDoWhile();
-            } else if (this.currentToken.description == ("PR_Console"))
+            } else if (this.currentToken.getDescription() == ("PR_console"))
             {
                 this.declaracionConsole();
-            } else if (this.currentToken.description == ("Identificador"))
+            } else if (this.currentToken.getDescription() == ("Identificador"))
             {
                 this.declaracionSinTipo();
-            } else if (this.currentToken.description == ("PR_return"))
+            } else if (this.currentToken.getDescription() == ("PR_return"))
             {
                 this.declaracionRetorno();
-            } else if (this.currentToken.description == ("PR_break"))
+            } else if (this.currentToken.getDescription() == ("PR_break"))
             {
                 this.break();
-            } else if (this.currentToken.description == ("PR_continue"))
+            } else if (this.currentToken.getDescription() == ("PR_continue"))
             {
                 this.continue();
             } else {
@@ -408,7 +416,6 @@ export class TraductorController {
             }
         }
     }
-
     public declaracionRetorno() {
         if(this.esMetodo == true) {
             this.traductor = this.traductor + "return";
@@ -416,21 +423,23 @@ export class TraductorController {
             //TIPO DE RETORNO
             this.emparejar("TK_PuntoComa");
         } else if(this.esFuncion == true) {
+            this.traductor = this.traductor + "return ";
             this.emparejar("PR_return");
             //TIPO DE RETORNO
-            this.traductor = this.traductor + "return ";
-            this.expresion();
+            this.condicionesReturn();
             this.InsertTraduction(this.traductor, "cadena");
             this.emparejar("TK_PuntoComa");
         }
         this.listaDeclaracion();
     }
+
+
     //DECLARACION CONSOLA
     public declaracionConsole() {
         this.traductor = this.traductor + "print(";
-        this.emparejar("PR_Console");
+        this.emparejar("PR_console");
         this.emparejar("TK_Punto");
-        this.emparejar("PR_Write");
+        this.emparejar(this.currentToken.getDescription());
         this.emparejar("TK_Parentesis_Izq");
         this.expresion();
         this.traductor = this.traductor + ")";
@@ -478,20 +487,20 @@ export class TraductorController {
 
     public tipoVariable() {
         this.traductor = this.traductor+ "var ";
-        if(this.currentToken.description == "PR_int") {
+        if(this.currentToken.getDescription() == "PR_int") {
             this.emparejar("PR_int");
             this.type = "int";
-        } else if(this.currentToken.description == "PR_double") {
+        } else if(this.currentToken.getDescription() == "PR_double") {
             this.emparejar("PR_double");
             this.type = "double";
-        } else if(this.currentToken.description == "PR_char") {
+        } else if(this.currentToken.getDescription() == "PR_char") {
             this.emparejar("PR_char");
             this.type = "char";
-        } else if(this.currentToken.description == "PR_bool") {
+        } else if(this.currentToken.getDescription() == "PR_bool") {
             this.emparejar("PR_bool");
             this.type = "bool";
-        } else if(this.currentToken.description == "PR_String") {
-            this.emparejar("PR_String");
+        } else if(this.currentToken.getDescription() == "PR_string") {
+            this.emparejar("PR_string");
             this.type = "String";
         }
     }
@@ -501,11 +510,20 @@ export class TraductorController {
         this.id = this.currentToken.getLexema();
         this.row = this.currentToken.getRow();
         this.emparejar("Identificador");
+        if(this.currentToken.getDescription() == "TK_Igual") {
+            this.emparejar("TK_Igual");
+            this.traductor = this.traductor + "=";
+            this.expresion();
+            this.InsertTraduction(this.traductor, "cadena");
+        } else {
+            //EPSILON
+        }
         this.masElementos();
     }
 
+
     public masElementos() {
-        if(this.currentToken.description == "TK_Coma") {
+        if(this.currentToken.getDescription() == "TK_Coma") {
             this.traductor = this.traductor + ",";
             this.emparejar("TK_Coma");
             this.listaAsignacion();
@@ -515,7 +533,7 @@ export class TraductorController {
     }
 
     public asignacionVariable() {
-        if(this.currentToken.description == "TK_Igual") {
+        if(this.currentToken.getDescription() == "TK_Igual") {
             this.traductor = this.traductor + "= ";
             this.emparejar("TK_Igual");
             this.expresion();
@@ -536,7 +554,7 @@ export class TraductorController {
         this.traductor = this.traductor + "if ";
         this.emparejar("PR_if");
         this.emparejar("TK_Parentesis_Izq");
-        this.condicion();
+        this.condiciones();
         this.emparejar("TK_Parentesis_Der");
         this.emparejar("TK_LlaveIzquierda");
 
@@ -570,27 +588,27 @@ export class TraductorController {
 
     public tipoCondicion() {
         this.traductor = this.traductor + this.currentToken.getLexema();
-        if(this.currentToken.description == 'Identificador') {
+        if(this.currentToken.getDescription() == 'Identificador') {
             this.emparejar("Identificador");
-        } else if(this.currentToken.description == 'Cadena') {
+        } else if(this.currentToken.getDescription() == 'Cadena') {
             this.emparejar("Cadena");
-        } else if(this.currentToken.description == 'Digito') {
+        } else if(this.currentToken.getDescription() == 'Digito') {
             this.emparejar("Digito");
-        } else if(this.currentToken.description == 'Cadena') {
+        } else if(this.currentToken.getDescription() == 'Cadena') {
             this.emparejar("Cadena");
-        } else if(this.currentToken.description == 'PR_null') {
+        } else if(this.currentToken.getDescription() == 'PR_null') {
             this.emparejar("PR_null");
-        } else if(this.currentToken.description == 'PR_true') {
+        } else if(this.currentToken.getDescription() == 'PR_true') {
             this.emparejar("PR_true");
-        } else if(this.currentToken.description == 'PR_false') {
+        } else if(this.currentToken.getDescription() == 'PR_false') {
             this.emparejar("PR_false");
-        } else if(this.currentToken.description == 'Decimal') {
+        } else if(this.currentToken.getDescription() == 'Decimal') {
             this.emparejar("Decimal");
         }
     }
 
     public else() {
-        if(this.currentToken.description == 'PR_else') {
+        if(this.currentToken.getDescription() == 'PR_else') {
             this.emparejar("PR_else");
             this.tipoElse();
         } else {
@@ -599,14 +617,14 @@ export class TraductorController {
     }
     /* PRUEBA*/
     public tipoElse() {
-        if(this.currentToken.description == 'PR_if') {
+        if(this.currentToken.getDescription() == 'PR_if') {
             this.traductor = this.traductor + "elif ";
             
             this.declaracionComentario();
             this.declaracionElseIf();
             this.declaracionComentario();
             this.InsertTraduction("}", "TK_LlaveDerecha"); 
-        } else if(this.currentToken.description == 'TK_LlaveIzquierda') {
+        } else if(this.currentToken.getDescription() == 'TK_LlaveIzquierda') {
             this.traductor = this.traductor + "else: "; 
             this.declaracionComentario();
             this.declaracionElse();
@@ -625,7 +643,7 @@ export class TraductorController {
     }
 
     public elseIf() {
-        if(this.currentToken.description == 'PR_if') {
+        if(this.currentToken.getDescription() == 'PR_if') {
             this.emparejar("PR_if");
             this.emparejar("TK_Parentesis_Izq");
             this.condicion();
@@ -643,7 +661,7 @@ export class TraductorController {
     }
 
     public otroElseIf() {
-        if(this.currentToken.description == 'PR_else') {
+        if(this.currentToken.getDescription() == 'PR_else') {
             this.declaracionComentario();
             this.else()
             this.declaracionComentario();
@@ -687,10 +705,10 @@ export class TraductorController {
         this.emparejar("TK_PuntoComa");
         //INCREMENTO
         this.emparejar("Identificador");
-        if(this.currentToken.description == 'TK_Suma') {
+        if(this.currentToken.getDescription() == 'TK_Suma') {
             this.emparejar("TK_Suma");
             this.emparejar("TK_Suma");
-        } else if(this.currentToken.description == 'TK_Resta') {
+        } else if(this.currentToken.getDescription() == 'TK_Resta') {
             this.emparejar("TK_Resta");
             this.emparejar("TK_Resta");
         }
@@ -715,7 +733,7 @@ export class TraductorController {
         this.emparejar("PR_while");
         this.emparejar("TK_Parentesis_Izq");
         //CONDICION
-        this.condicion();
+        this.condiciones();
         this.emparejar("TK_Parentesis_Der");
         this.emparejar("TK_LlaveIzquierda");
         this.traductor = this.traductor + ":";
@@ -774,7 +792,7 @@ export class TraductorController {
 
     public case() {
         if(this.currentToken != null) {
-            if(this.currentToken.description == 'PR_case') {
+            if(this.currentToken.getDescription() == 'PR_case') {
                 this.emparejar("PR_case");
                 this.tipoCase();
                 this.InsertTraduction(this.traductor + ":", "cadena");
@@ -792,22 +810,22 @@ export class TraductorController {
 
     public tipoCase() {
         this.traductor = this.traductor + this.currentToken.getLexema();
-        if(this.currentToken.description == 'Identificador') {
+        if(this.currentToken.getDescription() == 'Identificador') {
             this.emparejar("Identificador");
-        } else if(this.currentToken.description == 'Cadena') {
+        } else if(this.currentToken.getDescription() == 'Cadena') {
             this.emparejar("Cadena");
-        } else if(this.currentToken.description == 'Digito') {
+        } else if(this.currentToken.getDescription() == 'Digito') {
             this.emparejar("Digito");
-        } else if(this.currentToken.description == 'Cadena') {
+        } else if(this.currentToken.getDescription() == 'Cadena') {
             this.emparejar("Cadena");
-        } else if(this.currentToken.description == 'PR_null') {
+        } else if(this.currentToken.getDescription() == 'PR_null') {
             this.emparejar("PR_null");
         }
     }
 
     public otroCase() {
         if(this.currentToken != null) {
-            if(this.currentToken.description == 'PR_case') {
+            if(this.currentToken.getDescription() == 'PR_case') {
                 this.traductor = this.traductor + ",";
                 this.declaracionComentario();
                 this.case();
@@ -822,7 +840,7 @@ export class TraductorController {
 
     public break() {
         if(this.esSwitchRepeticion != 0) {
-            if(this.currentToken.description != null) {
+            if(this.currentToken.getDescription() != null) {
                 this.emparejar("PR_break");
                 this.traductor = this.traductor + "break";
                 this.InsertTraduction(this.traductor, "cadena");
@@ -834,7 +852,7 @@ export class TraductorController {
 
     public continue() {
         if(this.esRepeticion != 0) {
-            if(this.currentToken.description != null) {
+            if(this.currentToken.getDescription() != null) {
                 this.emparejar("PR_continue");
                 this.traductor = this.traductor + "continue";
                 this.InsertTraduction(this.traductor, "cadena");
@@ -847,7 +865,7 @@ export class TraductorController {
 
     public default() {
         if(this.currentToken != null) {
-            if(this.currentToken.description == 'PR_default') {
+            if(this.currentToken.getDescription() == 'PR_default') {
                 this.traductor = this.traductor + ",default";
                 this.InsertTraduction(this.traductor + ":", "cadena");
                 this.InsertTraduction("{", "TK_LlaveIzquierda");
@@ -865,66 +883,66 @@ export class TraductorController {
 
 
     public valorVariable() {
-        if(this.currentToken.description == "Digito") {
+        if(this.currentToken.getDescription() == "Digito") {
             this.emparejar("Digito");
-        } else if(this.currentToken.description == "Cadena") {
+        } else if(this.currentToken.getDescription() == "Cadena") {
             this.emparejar("Cadena");
         //FALTA CARACTER
-        } else if(this.currentToken.description == "Caracter") {
+        } else if(this.currentToken.getDescription() == "Caracter") {
             this.emparejar("Caracter");
-        } else if(this.currentToken.description == "PR_true") {
+        } else if(this.currentToken.getDescription() == "PR_true") {
             this.emparejar("PR_true");
-        } else if(this.currentToken.description == "PR_false") {
+        } else if(this.currentToken.getDescription() == "PR_false") {
             this.emparejar("PR_false");
-        } else if(this.currentToken.description == "Identificador") {
+        } else if(this.currentToken.getDescription() == "Identificador") {
             this.emparejar("Identificador");
         }
     }
 
     public operacionRelacional() {
-        if(this.currentToken.description == "TK_Menor") {
+        if(this.currentToken.getDescription() == "TK_Menor") {
             this.emparejar("TK_Menor");
             this.traductor = this.traductor + "<";
             this.currentToken = this.arrayListToken[this.index];
-            if(this.currentToken.description == "TK_Igual") {
+            if(this.currentToken.getDescription() == "TK_Igual") {
                 this.traductor = this.traductor + "=";
                 this.emparejar("TK_Igual");
             } else {
                 //EPSILON
             }
-        } else if(this.currentToken.description == "TK_Mayor") {
+        } else if(this.currentToken.getDescription() == "TK_Mayor") {
             this.emparejar("TK_Mayor");
             this.traductor = this.traductor + ">";
             this.currentToken = this.arrayListToken[this.index];
-            if(this.currentToken.description == "TK_Igual") {
+            if(this.currentToken.getDescription() == "TK_Igual") {
                 this.traductor = this.traductor + "=";
                 this.emparejar("TK_Igual");
             } else {
                 //EPSILON
             }
-        } if(this.currentToken.description == "TK_Igual") {
+        } if(this.currentToken.getDescription() == "TK_Igual") {
             this.emparejar("TK_Igual");
             this.emparejar("TK_Igual");
             this.traductor = this.traductor + "==";
-        } if(this.currentToken.description == "TK_Exclamacion") {
+        } if(this.currentToken.getDescription() == "TK_Exclamacion") {
             this.emparejar("TK_Exclamacion");
             this.emparejar("TK_Igual");
             this.traductor = this.traductor + "!=";
         } 
     }
     public operacionRelacionalFor() {
-        if(this.currentToken.description == "TK_Menor") {
+        if(this.currentToken.getDescription() == "TK_Menor") {
             this.emparejar("TK_Menor");
             this.currentToken = this.arrayListToken[this.index];
-            if(this.currentToken.description == "TK_Igual") {
+            if(this.currentToken.getDescription() == "TK_Igual") {
                 this.emparejar("TK_Igual");
             } else {
                 //EPSILON
             }
-        } else if(this.currentToken.description == "TK_Mayor") {
+        } else if(this.currentToken.getDescription() == "TK_Mayor") {
             this.emparejar("TK_Mayor");
             this.currentToken = this.arrayListToken[this.index];
-            if(this.currentToken.description == "TK_Igual") {
+            if(this.currentToken.getDescription() == "TK_Igual") {
                 this.emparejar("TK_Igual");
             } else {
                 //EPSILON
@@ -932,17 +950,17 @@ export class TraductorController {
         } 
     }
     public operacionLogicoAndOr() {
-        if(this.currentToken.description == "TK_Pleca") {
+        if(this.currentToken.getDescription() == "TK_Pleca") {
             this.emparejar("TK_Pleca");
             this.emparejar("TK_Pleca");
-        } else if(this.currentToken.description == "TK_&") {
+        } else if(this.currentToken.getDescription() == "TK_&") {
             this.emparejar("TK_&");
             this.emparejar("TK_&");
         }
     }
 
     public operacionLogicoNot() {
-        if(this.currentToken.description == "TK_Exclamacion") {
+        if(this.currentToken.getDescription() == "TK_Exclamacion") {
             this.emparejar("TK_Exclamacion");
         }
     }
@@ -963,7 +981,7 @@ export class TraductorController {
         this.emparejar("TK_Parentesis_Izq");
         //CONDICION
         this.traductor = this.traductor + "if (";
-        this.condicion();
+        this.condiciones();
         this.traductor = this.traductor + "):";
         this.InsertTraduction(this.traductor, "cadena");
         this.InsertTraduction("{", "TK_LlaveIzquierda");
@@ -988,7 +1006,9 @@ export class TraductorController {
         this.expresion();
         this.emparejar("TK_PuntoComa");
         this.InsertTraduction(this.traductor, "cadena");
+        this.declaracionComentario();
         this.listaDeclaracion();
+        this.declaracionComentario();
     }
 
     //EXPRESION
@@ -1006,54 +1026,54 @@ export class TraductorController {
         if (this.currentToken.lexema == "+")
         {
             this.traductor = this.traductor + "+";
-            this.emparejar(this.currentToken.description);
-            this.evaluarSiguiente(this.currentToken.description);
+            this.emparejar(this.currentToken.getDescription());
+            this.evaluarSiguiente(this.currentToken.getDescription());
         }
         else if (this.currentToken.lexema == "-")
         {
             this.traductor = this.traductor + "-";
-            this.emparejar(this.currentToken.description);
-            this.evaluarSiguiente(this.currentToken.description);
+            this.emparejar(this.currentToken.getDescription());
+            this.evaluarSiguiente(this.currentToken.getDescription());
         }
         else if (this.currentToken.lexema == "|")
         {
-            this.emparejar(this.currentToken.description);
-            this.emparejar(this.currentToken.description);
-            this.evaluarSiguiente(this.currentToken.description);
+            this.emparejar(this.currentToken.getDescription());
+            this.emparejar(this.currentToken.getDescription());
+            this.evaluarSiguiente(this.currentToken.getDescription());
         }else if (this.currentToken.lexema == "&")
         {
-            this.emparejar(this.currentToken.description);
-            this.emparejar(this.currentToken.description);
-            this.evaluarSiguiente(this.currentToken.description);
+            this.emparejar(this.currentToken.getDescription());
+            this.emparejar(this.currentToken.getDescription());
+            this.evaluarSiguiente(this.currentToken.getDescription());
         } else
-        if(this.currentToken.description == "TK_Menor") {
+        if(this.currentToken.getDescription() == "TK_Menor") {
             this.emparejar("TK_Menor");
             this.currentToken = this.arrayListToken[this.index];
-            if(this.currentToken.description == "TK_Igual") {
+            if(this.currentToken.getDescription() == "TK_Igual") {
                 this.emparejar("TK_Igual");
-                this.evaluarSiguiente(this.currentToken.description);
+                this.evaluarSiguiente(this.currentToken.getDescription());
             } else {
                 //EPSILON
-                this.evaluarSiguiente(this.currentToken.description);
+                this.evaluarSiguiente(this.currentToken.getDescription());
             }
-        } else if(this.currentToken.description == "TK_Mayor") {
+        } else if(this.currentToken.getDescription() == "TK_Mayor") {
             this.emparejar("TK_Mayor");
             this.currentToken = this.arrayListToken[this.index];
-            if(this.currentToken.description == "TK_Igual") {
+            if(this.currentToken.getDescription() == "TK_Igual") {
                 this.emparejar("TK_Igual");
-                this.evaluarSiguiente(this.currentToken.description);
+                this.evaluarSiguiente(this.currentToken.getDescription());
             } else {
                 //EPSILON
-                this.evaluarSiguiente(this.currentToken.description);
+                this.evaluarSiguiente(this.currentToken.getDescription());
             }
-        } else if(this.currentToken.description == "TK_Igual") {
+        } else if(this.currentToken.getDescription() == "TK_Igual") {
             this.emparejar("TK_Igual");
             this.emparejar("TK_Igual");
-            this.evaluarSiguiente(this.currentToken.description);
-        } else if(this.currentToken.description == "TK_Exclamacion") {
+            this.evaluarSiguiente(this.currentToken.getDescription());
+        } else if(this.currentToken.getDescription() == "TK_Exclamacion") {
             this.emparejar("TK_Exclamacion");
             this.emparejar("TK_Igual");
-            this.evaluarSiguiente(this.currentToken.description);
+            this.evaluarSiguiente(this.currentToken.getDescription());
         }
         else
         {
@@ -1075,42 +1095,43 @@ export class TraductorController {
     public factor() {
         if (this.currentToken.lexema == "(")
         {
-            this.emparejar(this.currentToken.description);
+            this.emparejar(this.currentToken.getDescription());
             this.expresion();
             this.emparejar("TK_Parentesis_Der");
         }
-        else if (this.currentToken.description == ("Digito") 
-        || this.currentToken.description == ("Cadena")
-        || this.currentToken.description == ("Decimal")
-        || this.currentToken.description == ("Cadena_HTML")
-        || this.currentToken.description == ("PR_true")
-        || this.currentToken.description == ("PR_false"))
+        else if (this.currentToken.getDescription() == ("Digito") 
+        || this.currentToken.getDescription() == ("Cadena")
+        || this.currentToken.getDescription() == ("Decimal")
+        || this.currentToken.getDescription() == ("Cadena_HTML")
+        || this.currentToken.getDescription() == ("PR_true")
+        || this.currentToken.getDescription() == ("Caracter")
+        || this.currentToken.getDescription() == ("PR_false"))
         {
-            if (this.currentToken.description == "Cadena_HTML") {
+            if (this.currentToken.getDescription() == "Cadena_HTML") {
                 this.getHtml(this.currentToken.getLexema());
             }
             this.traductor = this.traductor +this.currentToken.getLexema(); 
-            this.emparejar(this.currentToken.description);
-        } else if (this.currentToken.description == ("Identificador"))
+            this.emparejar(this.currentToken.getDescription());
+        } else if (this.currentToken.getDescription() == ("Identificador"))
         {
             this.traductor = this.traductor +this.currentToken.getLexema(); 
-            this.emparejar(this.currentToken.description);
+            this.emparejar(this.currentToken.getDescription());
             this.valorMetodoGlobal();
         } else {
-            console.error("Error se esperaba Digito o Cadena en lugar de " + this.currentToken.description);
+            console.error("Error se esperaba Digito o Cadena en lugar de " + this.currentToken.getDescription());
         }
     }
 
     public terminoPrima() {
         if (this.currentToken.lexema == "*")
         {
-            this.emparejar(this.currentToken.description);
-            this.evaluarSiguiente(this.currentToken.description);
+            this.emparejar(this.currentToken.getDescription());
+            this.evaluarSiguiente(this.currentToken.getDescription());
         }
         else if (this.currentToken.lexema == "/")
         {
-            this.emparejar(this.currentToken.description);
-            this.evaluarSiguiente(this.currentToken.description);
+            this.emparejar(this.currentToken.getDescription());
+            this.evaluarSiguiente(this.currentToken.getDescription());
         }
         else
         {
@@ -1125,24 +1146,345 @@ export class TraductorController {
     }
 
     public masParametrosAsignacion() {
-        if(this.currentToken.description == "TK_Coma") {
+        if(this.currentToken.getDescription() == "TK_Coma") {
             this.emparejar("TK_Coma");
             this.listaParametroAsignacion();
         } else {
             //EPSILON
         }
     }
+
+
+     /*_______________________________________________NUEVAS CONDICIONES____________________________________________ */
+     public condiciones() {
+        if(this.currentToken.description != "TK_Parentesis_Der") {
+            this.expresion2();
+            this.masCondiciones();
+        }
+    }
+    public masCondiciones() {
+        if(this.currentToken.description == "TK_Pleca") {
+            this.emparejar("TK_Pleca");
+            this.emparejar("TK_Pleca");
+            this.traductor = this.traductor + "||";
+        }if(this.currentToken.description == "TK_&") {
+            this.emparejar("TK_&");
+            this.emparejar("TK_&");
+            this.traductor = this.traductor + "&&";
+        } else {
+            //EPSILON
+        }
+        this.condiciones();
+    }
+
+    public expresion2() {
+        this.termino2();
+        this.expresionPrima2();
+    }
+
+    public termino2() {
+        this.factor2();
+        this.terminoPrima2();
+    }
+    public expresionPrima2() {
+        if (this.currentToken.description != null)
+        {
+        if (this.currentToken.lexema == "+")
+        {
+            this.traductor = this.traductor + "+";
+            this.emparejar(this.currentToken.description);
+            this.evaluarSiguiente2(this.currentToken.description);
+        }
+        else if (this.currentToken.lexema == "-")
+        {
+            this.traductor = this.traductor + "-";
+            this.emparejar(this.currentToken.description);
+            this.evaluarSiguiente(this.currentToken.description);
+        }else if(this.currentToken.description == "TK_Menor") {
+            this.traductor = this.traductor + "<";
+            this.emparejar("TK_Menor");
+            this.currentToken = this.arrayListToken[this.index];
+            if(this.currentToken.description == "TK_Igual") {
+                this.emparejar("TK_Igual");
+                this.traductor = this.traductor + "=";
+                this.evaluarSiguiente2(this.currentToken.description);
+            } else {
+                //EPSILON
+                this.evaluarSiguiente2(this.currentToken.description);
+            }
+        } else if(this.currentToken.description == "TK_Mayor") {
+            this.emparejar("TK_Mayor");
+            this.traductor= this.traductor + ">";
+            this.currentToken = this.arrayListToken[this.index];
+            if(this.currentToken.description == "TK_Igual") {
+                this.emparejar("TK_Igual");
+                this.traductor= this.traductor + "=";
+                this.evaluarSiguiente2(this.currentToken.description);
+            } else {
+                //EPSILON
+                this.evaluarSiguiente2(this.currentToken.description);
+            }
+        } else if(this.currentToken.description == "TK_Igual") {
+            this.emparejar("TK_Igual");
+            this.emparejar("TK_Igual");
+            this.traductor = this.traductor + "==";
+            this.evaluarSiguiente2(this.currentToken.description);
+        } else if(this.currentToken.description == "TK_Exclamacion") {
+            this.emparejar("TK_Exclamacion");
+            this.emparejar("TK_Igual");
+            this.traductor = this.traductor + "!=";
+            this.evaluarSiguiente2(this.currentToken.description);
+        }
+        else
+        {
+            //EPSILON
+        }   
+        }
+    }
+    
+    public evaluarSiguiente2(texto:string) {
+        if (this.currentToken.lexema != texto)
+        {
+            //console.error(this.currentToken.lexema)
+            this.termino2();
+            this.expresionPrima2();
+        } else {
+            //console.error(texto)
+        }
+    }
+
+    public factor2() {
+        if(this.currentToken.description!=null) {
+            if (this.currentToken.lexema == "(")
+            {
+                this.emparejar(this.currentToken.description);
+                this.expresion2();
+                this.emparejar("TK_Parentesis_Der");
+            }
+            else if (this.currentToken.description == ("Digito") 
+            || this.currentToken.description == ("Cadena")
+            || this.currentToken.description == ("Decimal")
+            || this.currentToken.description == ("Cadena_HTML")
+            || this.currentToken.description == ("Caracter")
+            || this.currentToken.description == ("PR_true")
+            || this.currentToken.description == ("PR_false"))
+            {
+                this.traductor = this.traductor + this.currentToken.getLexema();
+                this.emparejar(this.currentToken.description);
+            } else if (this.currentToken.description == ("Identificador"))
+            {
+                this.traductor = this.traductor + this.currentToken.getLexema();
+                this.emparejar(this.currentToken.description);
+            } else if (this.currentToken.description == ("TK_Exclamacion"))
+            {
+                this.traductor = this.traductor + "!";
+                this.emparejar("TK_Exclamacion");
+                this.currentToken = this.arrayListToken[this.index];
+                if(this.currentToken.description == "Identificador") {
+                    this.traductor = this.traductor + this.currentToken.getLexema();
+                    this.emparejar("Identificador");
+                } else if(this.currentToken.description == "PR_true" || this.currentToken.description == "PR_false") {
+                    this.traductor = this.traductor + this.currentToken.getLexema();
+                    this.emparejar(this.currentToken.description);
+                }
+            } else {
+                console.error("Error se esperaba Digito o Cadena en lugar de " + this.currentToken.description);
+            }
+        }
+    }
+
+    public terminoPrima2() {
+        if(this.currentToken.description!=null) {
+            if (this.currentToken.lexema == "*")
+            {
+                this.traductor = this.traductor + "*";
+                this.emparejar(this.currentToken.description);
+                this.evaluarSiguiente2(this.currentToken.description);
+            }
+            else if (this.currentToken.lexema == "/")
+            {
+                this.traductor = this.traductor + "/";
+                this.emparejar(this.currentToken.description);
+                this.evaluarSiguiente2(this.currentToken.description);
+            }
+            else
+            {
+                //EPSILON
+                //console.error(this.currentToken.lexema)
+            }
+        }
+    }
+
+     /*_______________________________________________CONDICIONES RETURN____________________________________________ */
+
+     public condicionesReturn() {
+        if(this.currentToken.description != "TK_PuntoComa") {
+            this.expresion2();
+            this.masCondicione3();
+        }
+    }
+
+    public masCondicione3() {
+        if(this.currentToken.description == "TK_Pleca") {
+            this.emparejar("TK_Pleca");
+            this.emparejar("TK_Pleca");
+            this.traductor = this.traductor + "||";
+        }if(this.currentToken.description == "TK_&") {
+            this.emparejar("TK_&");
+            this.emparejar("TK_&");
+            this.traductor = this.traductor + "&&";
+        } else {
+            //EPSILON
+        }
+        this.condicionesReturn();
+    }
+
+    public expresion3() {
+        this.termino3();
+        this.expresionPrima3();
+    }
+
+    public termino3() {
+        this.factor3();
+        this.terminoPrima3();
+    }
+
+    public expresionPrima3() {
+        if (this.currentToken.description != null)
+        {
+        if (this.currentToken.lexema == "+")
+        {
+            this.emparejar(this.currentToken.description);
+            this.evaluarSiguiente3(this.currentToken.description);
+        }
+        else if (this.currentToken.lexema == "-")
+        {
+            this.emparejar(this.currentToken.description);
+            this.evaluarSiguiente(this.currentToken.description);
+        }else if(this.currentToken.description == "TK_Menor") {
+            this.emparejar("TK_Menor");
+            this.currentToken = this.arrayListToken[this.index];
+            if(this.currentToken.description == "TK_Igual") {
+                this.emparejar("TK_Igual");
+                this.evaluarSiguiente3(this.currentToken.description);
+            } else {
+                //EPSILON
+                this.evaluarSiguiente3(this.currentToken.description);
+            }
+        } else if(this.currentToken.description == "TK_Mayor") {
+            this.emparejar("TK_Mayor");
+            this.currentToken = this.arrayListToken[this.index];
+            if(this.currentToken.description == "TK_Igual") {
+                this.emparejar("TK_Igual");
+                this.evaluarSiguiente3(this.currentToken.description);
+            } else {
+                //EPSILON
+                this.evaluarSiguiente3(this.currentToken.description);
+            }
+        } else if(this.currentToken.description == "TK_Igual") {
+            this.emparejar("TK_Igual");
+            this.emparejar("TK_Igual");
+            this.evaluarSiguiente3(this.currentToken.description);
+        } else if(this.currentToken.description == "TK_Exclamacion") {
+            this.emparejar("TK_Exclamacion");
+            this.emparejar("TK_Igual");
+            this.evaluarSiguiente3(this.currentToken.description);
+        }
+        else
+        {
+            //EPSILON
+        }   
+        }
+    }
+
+    public evaluarSiguiente3(texto:string) {
+        if (this.currentToken.lexema != texto)
+        {
+            //console.error(this.currentToken.lexema)
+            this.termino3();
+            this.expresionPrima3();
+        } else {
+            //console.error(texto)
+        }
+    }
+
+    public factor3() {
+        if(this.currentToken.description!=null) {
+            if (this.currentToken.lexema == "(")
+            {
+                this.emparejar(this.currentToken.description);
+                this.expresion3();
+                this.emparejar("TK_Parentesis_Der");
+            }
+            else if (this.currentToken.description == ("Digito") 
+            || this.currentToken.description == ("Cadena")
+            || this.currentToken.description == ("Decimal")
+            || this.currentToken.description == ("Cadena_HTML")
+            || this.currentToken.description == ("Caracter")
+            || this.currentToken.description == ("PR_true")
+            || this.currentToken.description == ("PR_false"))
+            {
+                this.emparejar(this.currentToken.description);
+            } else if (this.currentToken.description == ("Identificador"))
+            {
+                this.emparejar(this.currentToken.description);
+            } else if (this.currentToken.description == ("TK_Exclamacion"))
+            {
+                this.emparejar("TK_Exclamacion");
+                this.currentToken = this.arrayListToken[this.index];
+                if(this.currentToken.description == "Identificador") {
+                    this.emparejar("Identificador");
+                } else if(this.currentToken.description == "PR_true" || this.currentToken.description == "PR_false") {
+                    this.emparejar(this.currentToken.description);
+                }
+            } else {
+                console.error("Error se esperaba Digito o Cadena en lugar de " + this.currentToken.description);
+            }
+        }
+    }
+
+    public terminoPrima3() {
+        if(this.currentToken.description!=null) {
+            if (this.currentToken.lexema == "*")
+            {
+                this.emparejar(this.currentToken.description);
+                this.evaluarSiguiente3(this.currentToken.description);
+            }
+            else if (this.currentToken.lexema == "/")
+            {
+                this.emparejar(this.currentToken.description);
+                this.evaluarSiguiente3(this.currentToken.description);
+            }
+            else
+            {
+                //EPSILON
+                //console.error(this.currentToken.lexema)
+            }
+        }
+    }
+
+
+
     public emparejar(token:string)
     {
         if(this.currentToken!=null){
             if (this.currentToken.getDescription()!=token)
             {
                 //ERROR SI NO VIENE LO QUE DEBERIA
-                console.error("Error se esperaba "+ token + " en lugar de " + this.currentToken.description);
+                console.error("Error se esperaba "+ token + " en lugar de " + this.currentToken.getDescription());
                 //RECUPERACION MODO PANICO
                 for (let index = this.index; index < this.arrayListToken.length; index++) {
+                    console.log(this.currentToken.getDescription())
                     this.currentToken = this.arrayListToken[this.index];
-                    if(this.currentToken.description == token) {
+                    if(this.currentToken.getDescription() == "TK_PuntoComa" 
+                    || this.currentToken.getDescription() == "TK_LlaveDerecha"
+                    || this.currentToken.getDescription() == "TK_LlaveIzquierda"
+                    || this.currentToken.getDescription() == "PR_void"
+                    || this.currentToken.getDescription() == "PR_int"
+                    || this.currentToken.getDescription() == "PR_string"
+                    || this.currentToken.getDescription() == "PR_double"
+                    || this.currentToken.getDescription() == "PR_char"
+                    || this.currentToken.getDescription() == "PR_bool") {
                         this.currentToken = this.arrayListToken[this.index];
                         break;
                     }
@@ -1152,6 +1494,7 @@ export class TraductorController {
             //FLUJO CORRECTO
             if (this.currentToken.getDescription()==token)
             {
+                console.log(this.currentToken.toString())
                 this.index += 1;
                 this.currentToken = this.arrayListToken[this.index];
             }
@@ -1208,11 +1551,7 @@ export class TraductorController {
                 if( e.includes("<") && e.includes(">")){
                    if (e.toLocaleLowerCase().includes("style")) {
                     
-                    var splited = e.toLowerCase().split("style=");
-
-                    console.log(splited[0]);
-                    console.log(splited[1]);
-                    
+                    var splited = e.toLowerCase().split("style=");     
                     this.jsonElements.push( new TokenPyton( '"' + splited[0].replace('<', "").replace(">", "").toLocaleUpperCase() + '"' + ":{", "cadena") );
                     this.jsonElements.push( new TokenPyton("{", "TK_LlaveIzquierda") );         
                     this.jsonElements.push( new TokenPyton( '"' + "STYLE" + '":' + splited[1].replace('<', "").replace(">", ""), "cadena") );

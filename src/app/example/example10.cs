@@ -3,7 +3,7 @@
 */
 
 
-class{
+class Hola{
 	
 	//Esta entrada posee muchos errores :'(
 
@@ -20,11 +20,11 @@ class{
 
 	double operacionAritmetica(int n1, int n2, Tipo t){
 
-		if(suma == "suma"){
+		if(suma = "suma"){
 			return n1+n2;
 		}else if(resta == "resta"){
 			return n1+n2;
-		}else if("division"== division){
+		}else if("division"=> division){
 			return n1+n2;
 		}else if(9==9){
 			while(a!=123..0){
@@ -88,7 +88,7 @@ class{
 		string htmlSucess = "Este html esta correcto...!!!\n";
 		Console.Write(htmlSucess);
 		Console.Write('<html><head><title>Example 1</title></head><body style="background: skyblue"><h2>[OLC1]Practica 2</h2><p>Si<br>sale<br>compi<br>1<br>:)<br>html sin errores..!!!</p></body></html>');	
-	}a
+	}
 
 	void printFail(":("){
 		string htmlFail = "Este html esta incorrecto </3 ...!!!\n";

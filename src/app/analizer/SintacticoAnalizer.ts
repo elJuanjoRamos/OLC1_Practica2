@@ -13,6 +13,7 @@ export class SintacticoAnalizer {
     private esFuncion:boolean = false;
     private esSwitchRepeticion:number = 0;
     private esRepeticion:number = 0;
+    private contador:number = 0;
 
     constructor(){
     }
@@ -73,7 +74,7 @@ export class SintacticoAnalizer {
             if(this.currentToken.description == 'PR_void') {
                 this.emparejar("PR_void");
                 this.currentToken = this.arrayListToken[this.index];
-                if(this.currentToken.description == 'PR_Main') {
+                if(this.currentToken.description == 'PR_main') {
                     console.log("METODO PRINCIPAL")
                     this.declaracionComentario();
                     this.metodoPrincipal();
@@ -86,7 +87,7 @@ export class SintacticoAnalizer {
             || this.currentToken.description == "PR_double"
             || this.currentToken.description == "PR_char"
             || this.currentToken.description == "PR_bool"
-            || this.currentToken.description == "PR_String"
+            || this.currentToken.description == "PR_string"
             ) {
                 this.declaracionComentario();
                 this.tipoDeclaracion();
@@ -188,8 +189,8 @@ export class SintacticoAnalizer {
             } else if(this.currentToken.description == "TK_PuntoComa") {
                 this.emparejar("TK_PuntoComa");
             }
-        } else if(this.currentToken.description == "PR_String") {
-            this.emparejar("PR_String");
+        } else if(this.currentToken.description == "PR_string") {
+            this.emparejar("PR_string");
             this.emparejar("Identificador");
             this.asignacionVariableGlobal();
             this.currentToken = this.arrayListToken[this.index];
@@ -286,7 +287,7 @@ export class SintacticoAnalizer {
             || this.currentToken.description == "PR_double"
             || this.currentToken.description == "PR_char"
             || this.currentToken.description == "PR_bool"
-            || this.currentToken.description == "PR_String"
+            || this.currentToken.description == "PR_string"
             ) {
                 this.declaracion();
                 this.otraDeclaracionGlobal();
@@ -296,7 +297,7 @@ export class SintacticoAnalizer {
 
     public metodoPrincipal() {
         this.esMetodo = true;
-        this.emparejar("PR_Main");
+        this.emparejar("PR_main");
         this.emparejar("TK_Parentesis_Izq");
         this.parametroPrincipal();
         this.emparejar("TK_Parentesis_Der");
@@ -323,9 +324,9 @@ export class SintacticoAnalizer {
     }
 
     public parametroPrincipal() {
-        if (this.currentToken.description == "PR_String")
+        if (this.currentToken.description == "PR_string")
         {
-            this.emparejar("PR_String");
+            this.emparejar("PR_string");
             this.emparejar("TK_Corchete_Izq");
             this.emparejar("TK_Corchete_Der");
             this.emparejar("Identificador");
@@ -416,9 +417,9 @@ export class SintacticoAnalizer {
                 this.emparejar("Identificador");
                 this.emparejar("TK_PuntoComa");
                 this.emparejar("TK_LlaveDerecha");
-            } else if (this.currentToken.description == "PR_String")
+            } else if (this.currentToken.description == "PR_string")
             {
-                this.emparejar("PR_String");
+                this.emparejar("PR_string");
                 this.emparejar("Identificador");
                 this.emparejar("TK_Parentesis_Izq");
                 this.declaracionParametros();
@@ -442,7 +443,7 @@ export class SintacticoAnalizer {
             || this.currentToken.description == "PR_double"
             || this.currentToken.description == "PR_char"
             || this.currentToken.description == "PR_bool"
-            || this.currentToken.description == "PR_String"
+            || this.currentToken.description == "PR_string"
             ) {
                 this.declaracionComentario();
                 this.metodo();
@@ -461,7 +462,7 @@ export class SintacticoAnalizer {
             || this.currentToken.description == "PR_double"
             || this.currentToken.description == "PR_char"
             || this.currentToken.description == "PR_bool"
-            || this.currentToken.description == "PR_String"
+            || this.currentToken.description == "PR_string"
             ) {
             this.tipoVariable();
             this.listaParametro();
@@ -527,14 +528,13 @@ export class SintacticoAnalizer {
             || this.currentToken.description == "PR_double"
             || this.currentToken.description == "PR_char"
             || this.currentToken.description == "PR_bool"
-            || this.currentToken.description == "PR_String"
+            || this.currentToken.description == "PR_string"
             ) {
                 this.declaracionVariable();
             } else if (this.currentToken.description == ("ComentarioLinea")
             || this.currentToken.description == ("ComentarioMultilinea"))
             {
-                this.comentario();
-                this.otrosComentarios();
+                this.declaracionComentario();
             } else if (this.currentToken.description == ("PR_if"))
             {
                 this.DeclaracionIf();
@@ -550,7 +550,7 @@ export class SintacticoAnalizer {
             } else if (this.currentToken.description == ("PR_do"))
             {
                 this.declaracionDoWhile();
-            } else if (this.currentToken.description == ("PR_Console"))
+            } else if (this.currentToken.description == ("PR_console"))
             {
                 this.declaracionConsole();
             } else if (this.currentToken.description == ("Identificador"))
@@ -579,7 +579,7 @@ export class SintacticoAnalizer {
         } else if(this.esFuncion == true) {
             this.emparejar("PR_return");
             //TIPO DE RETORNO
-            this.expresion();
+            this.condicionesReturn();
             this.emparejar("TK_PuntoComa");
         }
         this.listaDeclaracion();
@@ -587,9 +587,9 @@ export class SintacticoAnalizer {
 
     //DECLARACION CONSOLA
     public declaracionConsole() {
-        this.emparejar("PR_Console");
+        this.emparejar("PR_console");
         this.emparejar("TK_Punto");
-        this.emparejar("PR_Write");
+        this.emparejar("PR_write");
         this.emparejar("TK_Parentesis_Izq");
         this.expresion();
         this.emparejar("TK_Parentesis_Der");
@@ -620,7 +620,7 @@ export class SintacticoAnalizer {
             || this.currentToken.description == "PR_double"
             || this.currentToken.description == "PR_char"
             || this.currentToken.description == "PR_bool"
-            || this.currentToken.description == "PR_String"
+            || this.currentToken.description == "PR_string"
             ) {
                 this.declaracionComentario();
                 this.asignacion();
@@ -643,8 +643,8 @@ export class SintacticoAnalizer {
             this.emparejar("PR_char");
         } else if(this.currentToken.description == "PR_bool") {
             this.emparejar("PR_bool");
-        } else if(this.currentToken.description == "PR_String") {
-            this.emparejar("PR_String");
+        } else if(this.currentToken.description == "PR_string") {
+            this.emparejar("PR_string");
         }
     }
 
@@ -683,7 +683,7 @@ export class SintacticoAnalizer {
     public DeclaracionIf() {
         this.emparejar("PR_if");
         this.emparejar("TK_Parentesis_Izq");
-        this.condicion();
+        this.condiciones();
         this.emparejar("TK_Parentesis_Der");
         this.emparejar("TK_LlaveIzquierda");
         this.declaracionComentario();
@@ -800,7 +800,7 @@ export class SintacticoAnalizer {
         this.emparejar("PR_int");
         this.emparejar("Identificador");
         this.emparejar("TK_Igual");
-        this.emparejar("Digito");
+        this.emparejar(this.currentToken.getDescription());
         this.emparejar("TK_PuntoComa");
         //CONDICION
         this.condicion();
@@ -833,7 +833,7 @@ export class SintacticoAnalizer {
         this.emparejar("PR_while");
         this.emparejar("TK_Parentesis_Izq");
         //CONDICION
-        this.condicion();
+        this.condiciones();
         this.emparejar("TK_Parentesis_Der");
         this.emparejar("TK_LlaveIzquierda");
         this.declaracionComentario();
@@ -1023,7 +1023,7 @@ export class SintacticoAnalizer {
         this.emparejar("PR_while");
         this.emparejar("TK_Parentesis_Izq");
         //CONDICION
-        this.condicion();
+        this.condiciones();
         this.emparejar("TK_Parentesis_Der");
         this.emparejar("TK_PuntoComa");
         this.esSwitchRepeticion--;
@@ -1039,7 +1039,9 @@ export class SintacticoAnalizer {
         this.emparejar("TK_Igual");
         this.expresion();
         this.emparejar("TK_PuntoComa");
+        this.declaracionComentario();
         this.listaDeclaracion();
+        this.declaracionComentario();
     }
 
     //EXPRESION
@@ -1132,6 +1134,7 @@ export class SintacticoAnalizer {
         || this.currentToken.description == ("Cadena")
         || this.currentToken.description == ("Decimal")
         || this.currentToken.description == ("Cadena_HTML")
+        || this.currentToken.description == ("Caracter")
         || this.currentToken.description == ("PR_true")
         || this.currentToken.description == ("PR_false"))
         {
@@ -1176,24 +1179,367 @@ export class SintacticoAnalizer {
             //EPSILON
         }
     }
-    
+
+    /*_______________________________________________NUEVAS CONDICIONES____________________________________________ */
+    public condiciones() {
+        if(this.currentToken.description != "TK_Parentesis_Der") {
+            this.expresion2();
+            this.masCondiciones();
+        }
+    }
+
+    public masCondiciones() {
+        if(this.currentToken.description == "TK_Pleca") {
+            this.emparejar("TK_Pleca");
+            this.emparejar("TK_Pleca");
+        }if(this.currentToken.description == "TK_&") {
+            this.emparejar("TK_&");
+            this.emparejar("TK_&");
+        } else {
+            //EPSILON
+        }
+        this.condiciones();
+    }
+
+    public expresion2() {
+        this.termino2();
+        this.expresionPrima2();
+    }
+
+    public termino2() {
+        this.factor2();
+        this.terminoPrima2();
+    }
+
+    public expresionPrima2() {
+        if (this.currentToken.description != null)
+        {
+        if (this.currentToken.lexema == "+")
+        {
+            this.emparejar(this.currentToken.description);
+            this.evaluarSiguiente2(this.currentToken.description);
+        }
+        else if (this.currentToken.lexema == "-")
+        {
+            this.emparejar(this.currentToken.description);
+            this.evaluarSiguiente(this.currentToken.description);
+        }else if(this.currentToken.description == "TK_Menor") {
+            this.emparejar("TK_Menor");
+            this.currentToken = this.arrayListToken[this.index];
+            if(this.currentToken.description == "TK_Igual") {
+                this.emparejar("TK_Igual");
+                this.evaluarSiguiente2(this.currentToken.description);
+            } else {
+                //EPSILON
+                this.evaluarSiguiente2(this.currentToken.description);
+            }
+        } else if(this.currentToken.description == "TK_Mayor") {
+            this.emparejar("TK_Mayor");
+            this.currentToken = this.arrayListToken[this.index];
+            if(this.currentToken.description == "TK_Igual") {
+                this.emparejar("TK_Igual");
+                this.evaluarSiguiente2(this.currentToken.description);
+            } else {
+                //EPSILON
+                this.evaluarSiguiente2(this.currentToken.description);
+            }
+        } else if(this.currentToken.description == "TK_Igual") {
+            this.emparejar("TK_Igual");
+            this.emparejar("TK_Igual");
+            this.evaluarSiguiente2(this.currentToken.description);
+        } else if(this.currentToken.description == "TK_Exclamacion") {
+            this.emparejar("TK_Exclamacion");
+            this.emparejar("TK_Igual");
+            this.evaluarSiguiente2(this.currentToken.description);
+        }
+        else
+        {
+            //EPSILON
+        }   
+        }
+    }
+
+    public evaluarSiguiente2(texto:string) {
+        if (this.currentToken.lexema != texto)
+        {
+            //console.error(this.currentToken.lexema)
+            this.termino2();
+            this.expresionPrima2();
+        } else {
+            //console.error(texto)
+        }
+    }
+
+    public factor2() {
+        if(this.currentToken.description!=null) {
+            if (this.currentToken.lexema == "(")
+            {
+                this.emparejar(this.currentToken.description);
+                this.expresion2();
+                this.emparejar("TK_Parentesis_Der");
+            }
+            else if (this.currentToken.description == ("Digito") 
+            || this.currentToken.description == ("Cadena")
+            || this.currentToken.description == ("Decimal")
+            || this.currentToken.description == ("Cadena_HTML")
+            || this.currentToken.description == ("Caracter")
+            || this.currentToken.description == ("PR_true")
+            || this.currentToken.description == ("PR_false"))
+            {
+                this.emparejar(this.currentToken.description);
+            } else if (this.currentToken.description == ("Identificador"))
+            {
+                this.emparejar(this.currentToken.description);
+            } else if (this.currentToken.description == ("TK_Exclamacion"))
+            {
+                this.emparejar("TK_Exclamacion");
+                this.currentToken = this.arrayListToken[this.index];
+                if(this.currentToken.description == "Identificador") {
+                    this.emparejar("Identificador");
+                } else if(this.currentToken.description == "PR_true" || this.currentToken.description == "PR_false") {
+                    this.emparejar(this.currentToken.description);
+                }
+            } else {
+                console.error("Error se esperaba Digito o Cadena en lugar de " + this.currentToken.description);
+            }
+        }
+    }
+
+    public terminoPrima2() {
+        if(this.currentToken.description!=null) {
+            if (this.currentToken.lexema == "*")
+            {
+                this.emparejar(this.currentToken.description);
+                this.evaluarSiguiente2(this.currentToken.description);
+            }
+            else if (this.currentToken.lexema == "/")
+            {
+                this.emparejar(this.currentToken.description);
+                this.evaluarSiguiente2(this.currentToken.description);
+            }
+            else
+            {
+                //EPSILON
+                //console.error(this.currentToken.lexema)
+            }
+        }
+        
+    }
+
+    /*_______________________________________________CONDICIONES RETURN____________________________________________ */
+
+    public condicionesReturn() {
+        if(this.currentToken.description != "TK_PuntoComa") {
+            this.expresion2();
+            this.masCondicione3();
+        }
+    }
+
+    public masCondicione3() {
+        if(this.currentToken.description == "TK_Pleca") {
+            this.emparejar("TK_Pleca");
+            this.emparejar("TK_Pleca");
+        }if(this.currentToken.description == "TK_&") {
+            this.emparejar("TK_&");
+            this.emparejar("TK_&");
+        } else {
+            //EPSILON
+        }
+        this.condicionesReturn();
+    }
+
+    public expresion3() {
+        this.termino3();
+        this.expresionPrima3();
+    }
+
+    public termino3() {
+        this.factor3();
+        this.terminoPrima3();
+    }
+
+    public expresionPrima3() {
+        if (this.currentToken.description != null)
+        {
+        if (this.currentToken.lexema == "+")
+        {
+            this.emparejar(this.currentToken.description);
+            this.evaluarSiguiente3(this.currentToken.description);
+        }
+        else if (this.currentToken.lexema == "-")
+        {
+            this.emparejar(this.currentToken.description);
+            this.evaluarSiguiente(this.currentToken.description);
+        }else if(this.currentToken.description == "TK_Menor") {
+            this.emparejar("TK_Menor");
+            this.currentToken = this.arrayListToken[this.index];
+            if(this.currentToken.description == "TK_Igual") {
+                this.emparejar("TK_Igual");
+                this.evaluarSiguiente3(this.currentToken.description);
+            } else {
+                //EPSILON
+                this.evaluarSiguiente3(this.currentToken.description);
+            }
+        } else if(this.currentToken.description == "TK_Mayor") {
+            this.emparejar("TK_Mayor");
+            this.currentToken = this.arrayListToken[this.index];
+            if(this.currentToken.description == "TK_Igual") {
+                this.emparejar("TK_Igual");
+                this.evaluarSiguiente3(this.currentToken.description);
+            } else {
+                //EPSILON
+                this.evaluarSiguiente3(this.currentToken.description);
+            }
+        } else if(this.currentToken.description == "TK_Igual") {
+            this.emparejar("TK_Igual");
+            this.emparejar("TK_Igual");
+            this.evaluarSiguiente3(this.currentToken.description);
+        } else if(this.currentToken.description == "TK_Exclamacion") {
+            this.emparejar("TK_Exclamacion");
+            this.emparejar("TK_Igual");
+            this.evaluarSiguiente3(this.currentToken.description);
+        }
+        else
+        {
+            //EPSILON
+        }   
+        }
+    }
+
+    public evaluarSiguiente3(texto:string) {
+        if (this.currentToken.lexema != texto)
+        {
+            //console.error(this.currentToken.lexema)
+            this.termino3();
+            this.expresionPrima3();
+        } else {
+            //console.error(texto)
+        }
+    }
+
+    public factor3() {
+        if(this.currentToken.description!=null) {
+            if (this.currentToken.lexema == "(")
+            {
+                this.emparejar(this.currentToken.description);
+                this.expresion3();
+                this.emparejar("TK_Parentesis_Der");
+            }
+            else if (this.currentToken.description == ("Digito") 
+            || this.currentToken.description == ("Cadena")
+            || this.currentToken.description == ("Decimal")
+            || this.currentToken.description == ("Cadena_HTML")
+            || this.currentToken.description == ("Caracter")
+            || this.currentToken.description == ("PR_true")
+            || this.currentToken.description == ("PR_false"))
+            {
+                this.emparejar(this.currentToken.description);
+            } else if (this.currentToken.description == ("Identificador"))
+            {
+                this.emparejar(this.currentToken.description);
+            } else if (this.currentToken.description == ("TK_Exclamacion"))
+            {
+                this.emparejar("TK_Exclamacion");
+                this.currentToken = this.arrayListToken[this.index];
+                if(this.currentToken.description == "Identificador") {
+                    this.emparejar("Identificador");
+                } else if(this.currentToken.description == "PR_true" || this.currentToken.description == "PR_false") {
+                    this.emparejar(this.currentToken.description);
+                }
+            } else {
+                console.error("Error se esperaba Digito o Cadena en lugar de " + this.currentToken.description);
+            }
+        }
+    }
+
+    public terminoPrima3() {
+        if(this.currentToken.description!=null) {
+            if (this.currentToken.lexema == "*")
+            {
+                this.emparejar(this.currentToken.description);
+                this.evaluarSiguiente3(this.currentToken.description);
+            }
+            else if (this.currentToken.lexema == "/")
+            {
+                this.emparejar(this.currentToken.description);
+                this.evaluarSiguiente3(this.currentToken.description);
+            }
+            else
+            {
+                //EPSILON
+                //console.error(this.currentToken.lexema)
+            }
+        }
+        
+    }
+
 
     public emparejar(token:string)
     {
+        let validar:Boolean;
         if(this.currentToken!=null){
             if (this.currentToken.getDescription()!=token)
             {
                 //ERROR SI NO VIENE LO QUE DEBERIA
                 console.error("Error se esperaba "+ token + " en lugar de " + this.currentToken.description);
                 //RECUPERACION MODO PANICO
+                console.log(this.currentToken.description)
+
                 for (let index = this.index; index < this.arrayListToken.length; index++) {
+                    console.log(this.currentToken.description)
+
                     this.currentToken = this.arrayListToken[this.index];
-                    if(this.currentToken.description == token) {
+                    if(this.currentToken.description == "TK_PuntoComa" 
+                    || this.currentToken.description == "TK_LlaveDerecha"
+                    || this.currentToken.description == "TK_LlaveIzquierda"
+                    || this.currentToken.description == "PR_void"
+                    || this.currentToken.description == "PR_int"
+                    || this.currentToken.description == "PR_string"
+                    || this.currentToken.description == "PR_double"
+                    || this.currentToken.description == "PR_char"
+                    || this.currentToken.description == "PR_bool") {
                         this.currentToken = this.arrayListToken[this.index];
+                        validar = true;
                         break;
                     }
                     this.index += 1;
                 }
+
+                /*for (let index = this.index; index < this.arrayListToken.length; index++) {
+                    console.log(this.currentToken.description)
+
+                    this.currentToken = this.arrayListToken[this.index];
+                    if(this.currentToken.description == "TK_PuntoComa" 
+                    || this.currentToken.description == "TK_LlaveDerecha"
+                    || this.currentToken.description == "TK_LlaveIzquierda"
+                    || this.currentToken.description == "PR_void"
+                    || this.currentToken.description == "PR_int"
+                    || this.currentToken.description == "PR_string"
+                    || this.currentToken.description == "PR_double"
+                    || this.currentToken.description == "PR_char"
+                    || this.currentToken.description == "PR_bool") {
+                        console.log("COINCIDE", this.currentToken.description)
+                        this.currentToken = this.arrayListToken[this.index];
+                        validar = true;
+                        break;
+                    }
+                    this.index += 1;
+                }
+
+                if(validar==false) {
+                    for (let index = this.index; index < this.arrayListToken.length; index++) {
+
+                        this.currentToken = this.arrayListToken[this.index];
+                        if(this.currentToken.description == token) {
+                            console.log("COINCIDE", this.currentToken.description)
+    
+                            this.currentToken = this.arrayListToken[this.index];
+                            break;
+                        }
+                        this.index += 1;
+                    }
+                }*/
+                
             }
             //FLUJO CORRECTO
             if (this.currentToken.getDescription()==token)

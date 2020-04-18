@@ -59,14 +59,15 @@ export class AppComponent {
     this.traductorController.ClearTraduction();
     this.lexicoAnalizer.analizerThisText( str );
     
-    /*//Se envia al sintactico si no hay error lexico
+    //Se envia al sintactico si no hay error lexico
     if (this.lexicoAnalizer.getArrayListError == undefined) {
     }  else {
       console.log("errores lexicos")
-    }*/
+    }
+    TokenController.getInstance().show();
 
     //ANALIZADOR SINTACTICO
-    //this.sintacticoAnalizer.obtenerLista(TokenController.getInstance().getArrayListToken);
+    this.sintacticoAnalizer.obtenerLista(TokenController.getInstance().getArrayListToken);
     
     //TRADUCTOR
     this.traductorController.obtenerLista(TokenController.getInstance().getArrayListToken);
@@ -76,20 +77,19 @@ export class AppComponent {
     textArea.textContent = "";
     textArea.textContent = this.traductorController.ShowTraduction();
 
-
-    /* */
+    
+    //HTML
     const textAreaHtml = document.getElementById("textAreaHtml");
     textAreaHtml.textContent = "";
     textAreaHtml.textContent = this.traductorController.ShowHTMLCode();
-
-    /* */
+    //JSON
     const textAreaJson = document.getElementById("textAreaJson");
     textAreaJson.textContent = "";
     textAreaJson.textContent = this.traductorController.ShowJSONCode();
 
     
     this.array = this.traductorController.GetVariables();
-    console.log("entrada");
+    
     
   }
 

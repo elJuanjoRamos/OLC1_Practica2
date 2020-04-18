@@ -27,7 +27,6 @@ export class LexicoAnalizer {
         var column: number = 0;
         var row: number = 1;;
         textInput = textInput + "\n"; //se agrega el hash del final
-        var delimiter = textInput.length;
         for (let i = 0; i < textInput.length; i++) {
             var letra = textInput[i];
             column++;
@@ -37,7 +36,6 @@ export class LexicoAnalizer {
                     if (this.IsLetter(letra) == true) {
                         state = 1;
                         this.auxiliar += letra;
-
                     }
                     //SI VIENE SALTO DE LINEA
                     else if (letra == '\n') {
@@ -150,12 +148,13 @@ export class LexicoAnalizer {
                         state = 1;
                     }
                     else {
-                        const reservada = ['int', 'String', 'string' ,'double', 'char', 'bool', 'public', 'class',
-                        'static', 'void', 'Main', 'return', 'true', 'false', 'for', 'if', 'while', 'else', 
-                        'switch', 'case', 'break', 'null', 'default', 'do', 'Console', 'Write', 'continue'];
+                        const reservada = ['int', 'string' ,'double', 'char', 'bool', 'public', 'class',
+                        'static', 'void', 'main', 'return', 'true', 'false', 'for', 'if', 'while', 'else', 'const',
+                        'switch', 'case', 'break', 'null', 'default', 'do', 'console', 'write', 'continue', 'abstract',
+                        'writeline', 'continue', 'decimal', 'try', 'catch', 'float'];
 
-                        if (reservada.includes(this.auxiliar)) {
-                            this.controller.InsertToken(row, (column - this.auxiliar.length - 1), this.auxiliar, "PR_" + this.auxiliar);
+                        if (reservada.includes(this.auxiliar.toLowerCase())) {
+                            this.controller.InsertToken(row, (column - this.auxiliar.length - 1), this.auxiliar.toLowerCase(), "PR_" + this.auxiliar.toLowerCase());
                         }
                         else {
                             this.controller.InsertToken(row, (column - this.auxiliar.length - 1), this.auxiliar, "Identificador");
@@ -310,7 +309,17 @@ export class LexicoAnalizer {
                 case 11: 
                     if (letra == "'") {
                         state = 0;
-                        this.controller.InsertToken(row, (column - this.auxiliar.length), this.auxiliar, "Cadena_HTML");
+                        var strTemp = this.auxiliar.replace("'", " ").replace("'", " ").trim();
+                        if((strTemp.length> 1)){
+                            if (this.auxiliar.includes("<") && this.auxiliar.includes(">")) {
+                                this.controller.InsertToken(row, (column - this.auxiliar.length), this.auxiliar, "Cadena_HTML");        
+                            } else {
+                                this.controller.InsertToken(row, (column - this.auxiliar.length), this.auxiliar, "Cadena");
+                            } 
+                        } else {
+                            this.controller.InsertToken(row, column, this.auxiliar, "Caracter");
+                        }
+
                         this.auxiliar = "";
                     }
                     break; 
@@ -342,14 +351,15 @@ export class LexicoAnalizer {
                             }
                         }*/
                         this.controller.InsertToken(row, (column - this.auxiliar.length), this.auxiliar, "Decimal");  
-
+                        i--;
+                        column--; 
                         state = 0;
                         this.auxiliar = "";    
                             
                     }  
                     break;     
                 default:
-                    this.controller.InsertToken(row, column, letra.toString(), "TD_Desconocido");
+                    this.controller.InsertToken(row, column, letra.toString(), "TK_Desconocido");
                     break;
             }
         }
@@ -378,12 +388,5 @@ export class LexicoAnalizer {
             return true;
         }    
         return false;
-    }
-
-    show(){
-        this.controller.show();
-    }
-    showError(){
-        this.controller.showError();
     }
 }
