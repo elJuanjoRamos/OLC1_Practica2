@@ -1,35 +1,31 @@
 import { Token } from '../models/Token';
 import { TokenPyton } from '../models/TokenPyton';
-import { TokenVariable } from '../models/TokenVariable';
+import { TableController } from '../controller/TableController';
+import { typeWithParameters } from '@angular/compiler/src/render3/util';
 
 export class TraductorController {
 
     private static instance: TraductorController;
     private arrayListToken: Token[] = [];
+    private tableController: any;
     private index:number = 0;
     private currentToken:Token = null;
-    private tokenInicio:String = "";
-    private errorSintactico:boolean = false;
-    private strTraductor:String;
     private esMetodo:boolean = false;
     private esFuncion:boolean = false;
     private esSwitchRepeticion:number = 0;
     private esRepeticion:number = 0;
-    private contador:number = 0;
-
     //Prueba 
     private traductor: string = "";
     private arrayTraducido: TokenPyton[] = [];
     private htmlElements: string[] = [];
     private jsonElements: TokenPyton[] = [];
     private dataType = ['PR_void','PR_int', 'PR_double', 'PR_char', 'PR_bool', 'PR_string'];
-    
+    private strError = "";
 
     //PARTE DE TABLA DE SIMBOLOS
-    //arreglo que guarda las variables
-    private arrayTokenVariable: TokenVariable[] = [];
     //tipo de la variable
     private type: string = "";
+    private ambit: string = "";
     private typeTemp: string = "";
     //identificador de la variable
     private id: string = "";
@@ -38,6 +34,7 @@ export class TraductorController {
 
 
     constructor(){
+        this.tableController = TableController.getInstance();
     }
 
     public static getInstance(): TraductorController {
@@ -66,6 +63,7 @@ export class TraductorController {
         if(this.currentToken.getDescription() == "PR_public") {
             this.emparejar("PR_public");
             this.emparejar("PR_class");
+            this.ambit = "Global";
             this.traductor = "class " + this.currentToken.getLexema() + ":";
             this.InsertTraduction(this.traductor, "cadena");
             this.InsertTraduction("{", "TK_LlaveIzquierda");
@@ -104,16 +102,23 @@ export class TraductorController {
         if(this.currentToken.getDescription()!=null) {
             if(this.currentToken.getDescription() == 'PR_void') {
                 this.emparejar("PR_void");
+                this.type = "Void";
                 this.currentToken = this.arrayListToken[this.index];
                 if(this.currentToken.getDescription() == 'PR_main') {
+                    this.InsertVariable(this.type, "Main", this.currentToken.getRow(), "Global");
+                    this.ambit = "Metodo Main";
                     this.traductor =  this.traductor + "def main ";
                     this.declaracionComentario();
                     this.metodoPrincipal();
                     this.declaracionComentario();
                 } else if(this.currentToken.getDescription() == 'Identificador') {
+                    this.id = this.currentToken.getLexema();
+                    this.row = this.currentToken.getRow();
+                    this.InsertVariable(this.type, this.id, this.row, "Global");
+                    this.ambit = "Metodo "+this.currentToken.getLexema() ;
                     this.metodoVoid();
                 }
-            } else if(this.dataType.includes(this.currentToken.getDescription())) {
+            } else if(this.dataType.includes(this.currentToken.getDescription())) { 
                 this.declaracionComentario();
                 this.tipoDeclaracion();
                 this.declaracionComentario();
@@ -138,6 +143,8 @@ export class TraductorController {
             //ES FUNCION
             if(this.currentToken.getDescription() == "TK_Parentesis_Izq") {
                 this.esFuncion = true;
+                this.InsertVariable(this.type, this.id, this.row, this.ambit);
+                this.ambit = "Funcion " + this.traductor;
                 this.traductor = "def " + this.traductor + "(";
                 this.emparejar("TK_Parentesis_Izq");
                 this.declaracionParametros();
@@ -151,10 +158,11 @@ export class TraductorController {
                 this.declaracionComentario();
                 this.InsertTraduction("}", "TK_LlaveDerecha");
                 this.emparejar("TK_LlaveDerecha");
+                this.ambit = "Global";
                 this.esFuncion = false;
             } else if(this.currentToken.getDescription() == "TK_Coma") {
                 this.traductor = "var " + this.traductor;
-                this.InsertVariable(this.type, this.id, this.row);   
+                this.InsertVariable(this.type, this.id, this.row, this.ambit);   
                 this.type = this.typeTemp;
                 this.listaAsignacionGlobal();
                 this.emparejar("TK_PuntoComa");
@@ -162,7 +170,7 @@ export class TraductorController {
                 this.traductor = "var " + this.traductor; 
                 this.emparejar("TK_PuntoComa");
                 this.InsertTraduction(this.traductor, "cadena");
-                this.InsertVariable(this.type, this.id, this.row);   
+                this.InsertVariable(this.type, this.id, this.row, this.ambit);   
             }
         
     }
@@ -176,7 +184,7 @@ export class TraductorController {
         this.traductor = this.traductor + this.currentToken.getLexema();
         this.id = this.currentToken.getLexema();
         this.row = this.currentToken.getRow();
-        this.InsertVariable(this.type, this.id, this.row); 
+        this.InsertVariable(this.type, this.id, this.row, this.ambit); 
         this.type = this.typeTemp;
         this.emparejar("Identificador");
         this.asignacionVariableGlobal();
@@ -245,6 +253,7 @@ export class TraductorController {
                 this.declaracion();
                 this.otraDeclaracionGlobal();
             }else if(this.dataType.includes(this.currentToken.getDescription())) {
+                this.type = this.currentToken.getLexema();
                 this.declaracion();
                 this.otraDeclaracionGlobal();
             }
@@ -265,6 +274,7 @@ export class TraductorController {
         this.declaracionComentario();
         this.emparejar("TK_LlaveDerecha");
         this.InsertTraduction("}", "TK_LlaveDerecha");
+        this.ambit = "Global";
         this.traductor = this.traductor + "if __name__ = \"__main__\": \n\tmain()";
         this.InsertTraduction(this.traductor, "cadena");
         this.esMetodo = false;
@@ -286,6 +296,7 @@ export class TraductorController {
         this.listaDeclaracion();
         this.declaracionComentario();
         this.emparejar("TK_LlaveDerecha");
+        this.ambit = "Global";
         this.InsertTraduction("}", "TK_LlaveDerecha");
         this.esMetodo = false;
     }
@@ -304,8 +315,9 @@ export class TraductorController {
     //DECLARACION PARAMETROS
     public declaracionParametros(){
         if(this.dataType.includes(this.currentToken.getDescription())) {
-                this.tipoVariable();
-                this.listaParametro();
+            this.type = this.currentToken.getLexema();
+            this.tipoVariable();
+            this.listaParametro();
         } else {
             //EPSILON
         }
@@ -313,6 +325,7 @@ export class TraductorController {
 
     public listaParametro() {
         this.traductor = this.traductor + this.currentToken.getLexema();
+        this.InsertVariable(this.type, this.currentToken.getLexema(), this.currentToken.getRow(), this.ambit); 
         this.emparejar("Identificador");
         this.masParametros();
     }
@@ -467,7 +480,7 @@ export class TraductorController {
         this.asignacionVariable();
         this.emparejar("TK_PuntoComa");
         this.InsertTraduction(this.traductor, "cadena");
-        this.InsertVariable(this.type, this.id, this.row);
+        this.InsertVariable(this.type, this.id, this.row, this.ambit);
     }
 
     public otraAsignacion() {
@@ -1000,11 +1013,15 @@ export class TraductorController {
     //DECLARACION SIN TIPO
     public declaracionSinTipo() {
         this.traductor = this.traductor + this.currentToken.getLexema();
+        this.id = this.currentToken.getLexema();
         this.emparejar("Identificador");
         this.emparejar("TK_Igual");
         this.traductor = this.traductor + "=";
         this.expresion();
         this.emparejar("TK_PuntoComa");
+        if(this.tableController.searchVariable(this.id) == false){
+            this.strError = this.strError + "\n" + "*Error Sintactico: La variable '" + this.id + "' no ha sido declarada, Linea: "  + this.row; 
+        } 
         this.InsertTraduction(this.traductor, "cadena");
         this.declaracionComentario();
         this.listaDeclaracion();
@@ -1502,15 +1519,17 @@ export class TraductorController {
     }
 
 
-    public InsertVariable(type: string, id: string, row: number){
-        this.arrayTokenVariable.push( new TokenVariable(type, id, row) );
+    public InsertVariable(type: string, id: string, row: number, ambit: string){
+        if(this.tableController.searchVariable(id) == false){
+            this.tableController.InsertToken(id, type, ambit, row);
+        } else {
+            this.strError = this.strError + "\n" + "*Error Sintactico: La variable '" + id + "' ya fue declarada, Linea: " + row;
+        }
         this.row = 0;
         this.id = this.type = "";
     }
 
-    public GetVariables(): TokenVariable[] {
-        return this.arrayTokenVariable;
-    }
+   
     /* OBTIENE LA CADENA HTML A TRADUCIR*/
     public getHtml( str:string ){
         str = str.replace("'", " ").trim();
@@ -1583,10 +1602,10 @@ export class TraductorController {
     /* LIMPIA LOS ARREGLOS*/
     public ClearTraduction(){
         this.arrayTraducido = [];
-        this.arrayTokenVariable = [];
         this.htmlElements = [];
         this.jsonElements = [];
         this.traductor = "";
+        this.strError = "";
     } 
 
 
@@ -1665,5 +1684,9 @@ export class TraductorController {
             }
         }
         return newElement;   
+    }
+    public GetError(): string {
+        var str = this.strError;
+        return str;
     }
 }

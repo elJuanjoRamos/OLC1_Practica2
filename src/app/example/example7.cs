@@ -4,10 +4,9 @@ public class Example
     {
         for (int i = 0; i < length; i++)
         {
-            continue;
+            
             break;
         }
-        return 1+2*3/3;
     }
     void OtroMetodo(String a, bool b, char c, double d, int e) {
 
@@ -17,7 +16,7 @@ public class Example
 
         if (a>s)
         {
-            continue;
+            
         }
 
         return;
@@ -35,7 +34,7 @@ public class Example
                 {
                     break;
                 }
-                continue;
+                
                 break;
             }
             break;
@@ -47,7 +46,7 @@ public class Example
         for (int i = 0; i < length; i++)
         {
             break;
-            continue;
+            
         }
         return "Hola Mundo";
     }
@@ -56,7 +55,7 @@ public class Example
 
         for (int i = 0; i < length; i++)
         {
-            continue;
+            
             break;
         }
         return "Hola Mundo" + b + " " + c;
@@ -68,11 +67,11 @@ public class Example
             case a:
             break;
             case a:
-            continue;
+            
             case a:
-            continue;
+            
             case a:
-            continue;
+            
             default:
         }
         return true;

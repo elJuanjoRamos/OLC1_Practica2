@@ -38,11 +38,9 @@ public class Example
     bool hola = holaMundo();
     char hola = holaMundo();
     double hola = holaMundo();
-
-
     void Main(String[] args)
     {
-        if(a=b) {
+        if(a==b) {
 
         }
        return;

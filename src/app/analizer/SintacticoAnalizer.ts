@@ -14,6 +14,7 @@ export class SintacticoAnalizer {
     private esSwitchRepeticion:number = 0;
     private esRepeticion:number = 0;
     private contador:number = 0;
+    private strError = "";
 
     constructor(){
     }
@@ -1144,7 +1145,10 @@ export class SintacticoAnalizer {
             this.emparejar(this.currentToken.description);
             this.valorMetodoGlobal();
         } else {
-            console.error("Error se esperaba Digito o Cadena en lugar de " + this.currentToken.description);
+            console.error("*Error Sintactico: Se esperaba Digito o Cadena en lugar de " + this.currentToken.description);
+            this.strError = this.strError + "\n" + "*Error Sintactico: Se esperaba Digito o Cadena en lugar de " + this.currentToken.description 
+            + ", Linea: " +this.currentToken.getRow() + ", Columna: " + this.currentToken.getColum();
+                
         }
     }
 
@@ -1300,7 +1304,11 @@ export class SintacticoAnalizer {
                     this.emparejar(this.currentToken.description);
                 }
             } else {
-                console.error("Error se esperaba Digito o Cadena en lugar de " + this.currentToken.description);
+                console.error("*Error Sintactico: Se esperaba Digito o Cadena en lugar de " + this.currentToken.description);
+                this.strError = this.strError + "\n" +
+                "*Error Sintactico: Se esperaba Digito o Cadena en lugar de " + this.currentToken.description
+                + ", Linea: " +this.currentToken.getRow() + ", Columna: " + this.currentToken.getColum();
+
             }
         }
     }
@@ -1447,7 +1455,10 @@ export class SintacticoAnalizer {
                     this.emparejar(this.currentToken.description);
                 }
             } else {
-                console.error("Error se esperaba Digito o Cadena en lugar de " + this.currentToken.description);
+                //console.error("*Error Sintactico: Se esperaba Digito o Cadena en lugar de " + this.currentToken.description);
+                this.strError = this.strError + "\n" +
+                "*Error Sintactico: Se esperaba Digito o Cadena en lugar de " + this.currentToken.description
+                + ", Linea: " +this.currentToken.getRow() + ", Columna: " + this.currentToken.getColum();
             }
         }
     }
@@ -1472,8 +1483,12 @@ export class SintacticoAnalizer {
         }
         
     }
-
-
+    public clear(){
+        this.strError = "";
+    }
+    public GetError() : string {
+        return this.strError;
+    }
     public emparejar(token:string)
     {
         let validar:Boolean;
@@ -1481,7 +1496,9 @@ export class SintacticoAnalizer {
             if (this.currentToken.getDescription()!=token)
             {
                 //ERROR SI NO VIENE LO QUE DEBERIA
-                console.error("Error se esperaba "+ token + " en lugar de " + this.currentToken.description);
+                console.error("*Error Sintactico: Se esperaba "+ token + " en lugar de " + this.currentToken.description);
+                this.strError = this.strError + "\n" + "*Error Sintactico: Se esperaba "+ token + " en lugar de " + this.currentToken.description
+                + ", Linea: " +this.currentToken.getRow() + ", Columna: " + this.currentToken.getColum();
                 //RECUPERACION MODO PANICO
                 console.log(this.currentToken.description)
 

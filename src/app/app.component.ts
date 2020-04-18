@@ -3,7 +3,7 @@ import { LexicoAnalizer } from '../app/analizer/LexicoAnalizer';
 import { SintacticoAnalizer } from './analizer/SintacticoAnalizer';
 import { TokenController } from './controller/TokenController';
 import { TraductorController } from './controller/TraductorController';
-
+import { TableController } from './controller/TableController';
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
@@ -15,26 +15,28 @@ export class AppComponent {
   title = 'OLC1Practica2';
 
   //VARIABLES GLOBALES
-  file:any;
+  file: any;
   inputVar: string;
   lexicoAnalizer: any;
   sintacticoAnalizer: any;
   tokenController: any;
   traductorController: any;
-  array:any[] = [];
+  tableController: any;
+  array: any[] = [];
 
-  constructor() { 
+  constructor() {
     this.inputVar = "";
-    this.lexicoAnalizer = LexicoAnalizer.getInstance();     
-    this.sintacticoAnalizer = SintacticoAnalizer.getInstance();     
-    this.tokenController = TokenController.getInstance();     
-    this.traductorController = TraductorController.getInstance();     
+    this.lexicoAnalizer = LexicoAnalizer.getInstance();
+    this.sintacticoAnalizer = SintacticoAnalizer.getInstance();
+    this.tokenController = TokenController.getInstance();
+    this.traductorController = TraductorController.getInstance();
+    this.tableController = TableController.getInstance();
   }
 
 
   /*Prueva*/
   arrayTabs: number[] = [];
-  cargarTabs(){
+  cargarTabs() {
     this.arrayTabs.push((this.arrayTabs.length + 1));
   }
   /*---------------------------*/
@@ -48,49 +50,56 @@ export class AppComponent {
     fileReader.onload = (e) => {
       var i = "textArea" + id;
       const textArea = document.getElementById(i);
-      textArea.textContent = fileReader.result.toString();   
+      textArea.textContent = fileReader.result.toString();
     }
-    fileReader.readAsText( this.file );
+    fileReader.readAsText(this.file);
   }
 
-  enviar( str: string ){
+  enviar(str: string) {
     console.clear();
     this.tokenController.clear();
+    this.tableController.clear();
+    this.sintacticoAnalizer.clear();
     this.traductorController.ClearTraduction();
-    this.lexicoAnalizer.analizerThisText( str );
-    
+    this.lexicoAnalizer.analizerThisText(str);
+
     //Se envia al sintactico si no hay error lexico
     if (this.lexicoAnalizer.getArrayListError == undefined) {
-    }  else {
-      console.log("errores lexicos")
+      //ANALIZADOR SINTACTICO
+      this.sintacticoAnalizer.obtenerLista(TokenController.getInstance().getArrayListToken);
+
+      //CONSOLA
+      const textAreaConsola = document.getElementById("textAreaConsola");
+      textAreaConsola.textContent = "";
+      textAreaConsola.textContent = textAreaConsola.textContent + "\n" + this.sintacticoAnalizer.GetError();
+      
+      if( this.sintacticoAnalizer.GetError() == "" ){
+        //TRADUCTOR
+        this.traductorController.obtenerLista(TokenController.getInstance().getArrayListToken);
+        console.log("---------------");
+        const textArea = document.getElementById("textAreaTraduccion");
+        textArea.textContent = "";
+        textArea.textContent = this.traductorController.ShowTraduction();
+        textAreaConsola.textContent = textAreaConsola.textContent + "\n"  + this.traductorController.GetError();
+      }
+     
+
+
+      //HTML
+      const textAreaHtml = document.getElementById("textAreaHtml");
+      textAreaHtml.textContent = "";
+      textAreaHtml.textContent = this.traductorController.ShowHTMLCode();
+      //JSON
+      const textAreaJson = document.getElementById("textAreaJson");
+      textAreaJson.textContent = "";
+      textAreaJson.textContent = this.traductorController.ShowJSONCode();
+
+      this.array = this.tableController.getArrayList;
+
+    } else {
+      this.tokenController.showError();
     }
-    TokenController.getInstance().show();
 
-    //ANALIZADOR SINTACTICO
-    this.sintacticoAnalizer.obtenerLista(TokenController.getInstance().getArrayListToken);
-    
-    //TRADUCTOR
-    this.traductorController.obtenerLista(TokenController.getInstance().getArrayListToken);
-    console.log("---------------");
-    this.traductorController.ShowTraduction();
-    const textArea = document.getElementById("textAreaTraduccion");
-    textArea.textContent = "";
-    textArea.textContent = this.traductorController.ShowTraduction();
-
-    
-    //HTML
-    const textAreaHtml = document.getElementById("textAreaHtml");
-    textAreaHtml.textContent = "";
-    textAreaHtml.textContent = this.traductorController.ShowHTMLCode();
-    //JSON
-    const textAreaJson = document.getElementById("textAreaJson");
-    textAreaJson.textContent = "";
-    textAreaJson.textContent = this.traductorController.ShowJSONCode();
-
-    
-    this.array = this.traductorController.GetVariables();
-    
-    
   }
 
 
