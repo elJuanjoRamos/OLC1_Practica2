@@ -17,9 +17,67 @@
   <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
-
+  <script src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
+  <script src="https://cdn.datatables.net/1.10.16/js/dataTables.bootstrap4.min.js"></script>
+  <style>
+		.rownr {overflow-y: hidden; background-color: rgb(105,105,105); color: white; text-align: right; vertical-align:top; z-index: 0}
+		.txt {width: 95%; overflow-x: scroll; background: transparent; z-index: 0}
+	</style>
 </head>
 <body>
   <app-root></app-root>
 </body>
+
+<SCRIPT Language="javascript">
+	var cntline;
+	
+	function input_changed(obj_txt)
+	{
+		obj_rownr = obj_txt.parentElement.parentElement.getElementsByTagName('textarea')[0];
+		cntline = count_lines(obj_txt.value);
+		if(cntline == 0) cntline = 1;
+		tmp_arr = obj_rownr.value.split('\n');
+		cntline_old = parseInt(tmp_arr[tmp_arr.length - 1], 10);
+		// if there was a change in line count
+		if(cntline != cntline_old)
+		{
+			obj_rownr.cols = cntline.toString().length; // new width of txt_rownr
+			populate_rownr(obj_rownr, cntline);
+			scroll_changed(obj_txt);
+		}
+	}
+	
+	function scroll_changed(obj_txt)
+	{
+		obj_rownr = obj_txt.parentElement.parentElement.getElementsByTagName('textarea')[0];
+		scrollsync(obj_txt,obj_rownr);
+	}
+	
+	function scrollsync(obj1, obj2)
+	{
+		// scroll text in object id1 the same as object id2
+		obj2.scrollTop = obj1.scrollTop;
+	}
+	
+	function populate_rownr(obj, cntline)
+	{
+		tmpstr = '';
+		for(i = 1; i < cntline; i++)
+		{
+			tmpstr = tmpstr + i.toString() + '\n';
+		}
+		obj.value = tmpstr;
+	}
+	
+	function count_lines(txt)
+	{
+		if(txt == '')
+		{
+			return 1;
+		}
+		return txt.split('\n').length + 1;
+	}
+	
+</SCRIPT>
+
 </html>

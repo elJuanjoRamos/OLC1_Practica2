@@ -213,6 +213,7 @@ export class LexicoAnalizer {
                         this.controller.InsertToken(row, column, "/", "TK_Division");
                         i--;
                         column--;
+                        this.auxiliar = "";
                         state = 0;    
                     }   
                     break;

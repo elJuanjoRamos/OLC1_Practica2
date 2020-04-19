@@ -77,13 +77,17 @@ export class AppComponent {
       textAreaConsola.textContent = textAreaConsola.textContent + "\n" + this.sintacticoAnalizer.GetError();
       
       if( this.sintacticoAnalizer.GetError() == "" ){
-        //TRADUCTOR
         this.traductorController.obtenerLista(TokenController.getInstance().getArrayListToken);
-        console.log("---------------");
-        const textArea = document.getElementById("textAreaTraduccion");
-        textArea.textContent = "";
-        textArea.textContent = this.traductorController.ShowTraduction();
-        textAreaConsola.textContent = textAreaConsola.textContent + "\n"  + this.traductorController.GetError();
+        
+        if(this.traductorController.GetError() == ""){
+          //TRADUCTOR
+          const textArea = document.getElementById("textAreaTraduccion");
+          textArea.textContent = "";
+          textArea.textContent = this.traductorController.ShowTraduction();
+          textAreaConsola.textContent = textAreaConsola.textContent + "\n"  + this.traductorController.GetError();  
+        } else {
+          textAreaConsola.textContent = textAreaConsola.textContent + "\n" +this.traductorController.GetError();
+        }
       }
      
 

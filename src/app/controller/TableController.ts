@@ -23,11 +23,11 @@ export class TableController{
         var tok = new TokenTable(id, type, ambit, row);
         this.arrayListVariable.push(tok);
     }
-    public searchVariable(id: string) : boolean {
+    public searchVariable(id: string, ambit: string) : boolean {
 
         for (let i = 0; i < this.arrayListVariable.length; i++) {
             const e = this.arrayListVariable[i];
-            if(e.getId() == id){
+            if(e.getId() == id && e.getAmbit() == ambit ){
                 return true;
                 break;
             }   

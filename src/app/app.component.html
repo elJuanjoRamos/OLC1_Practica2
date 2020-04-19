@@ -1,203 +1,167 @@
-<div id="wrapper" class="animate">
-  <nav class="navbar header-top fixed-top navbar-expand-lg  navbar-dark bg-dark">
-    <span class="navbar-toggler-icon leftmenutrigger"></span>
-    <a class="navbar-brand" href="#">LOGO</a>
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarText"
-      aria-controls="navbarText" aria-expanded="false" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="navbarText">
-      <ul class="navbar-nav animate side-nav">
-        <li class="nav-item">
-          <a class="nav-link" href="#">Home
-            <span class="sr-only">(current)</span>
-          </a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" (click)="cargarTabs()">Nueva Tab</a>
-        </li>
-      </ul>
-    </div>
-  </nav>
 
-  <div class="container-fluid container-full-height">
-    <div class="row row-full-height">
-      <div class="col-sm-6 col-md-6 col-full-height col-vertical-height login-form">
-        <div class="col-vertical-top">
-          <form class="form-horizontal justify-content-center" role="form">
-            <nav>
-              <div class="nav nav-tabs" id="nav-tab" role="tablist">
-                <a class="nav-item nav-link" id="nav-home-tab0" data-toggle="tab" href="#nav-home0" role="tab"
-                  aria-selected="true">Pestaña 1</a>
-                <a *ngFor="let i of arrayTabs" class="nav-item nav-link" id="nav-home-tab{{i+1}}" data-toggle="tab"
-                  href="#nav-home{{i+1}}" role="tab" aria-selected="true">Pestaña {{i+1}}</a>
-              </div>
-            </nav>
-            <div class="tab-content" id="nav-tabContent">
-              <div class="tab-pane fade show active justify-content-center" id="nav-home0" role="tabpane0"
-                aria-labelledby="nav-home-tab">
-                <br>
-                <div class="input-group mb-3">
-                  <div class="input-group-prepend">
-                    <input type="file" class="btn btn-outline-secondary form-control-file"
-                      (change)="fileChanged($event)">
-                    <button class="btn btn-outline-primary" (click)="uploadDocument(0)" type="button">Cargar
-                      Doc</button>
-                    <button class="btn btn-outline-success" (click)="enviar(textArea.value)"
-                      type="button">Analizar</button>
-                  </div>
-                </div>
-                <textarea #textArea id="textArea0" style="width: 100%; height: 300px;"></textarea>
-              </div>
-              <div *ngFor="let i of arrayTabs" class="tab-pane fade show" id="nav-home{{i+1}}" role="tabpanel"
-                aria-labelledby="nav-home-tab">
-                <br>
-                <div class="input-group mb-3">
-                  <div class="input-group-prepend">
-                    <input type="file" class="btn btn-outline-secondary form-control-file"
-                      (change)="fileChanged($event)">
-                    <button class="btn btn-outline-primary" (click)="uploadDocument(i+1)" type="button">Cargar
-                      Doc</button>
-                    <button class="btn btn-outline-success" (click)="enviar(textArea.value)"
-                      type="button">Analizar</button>
-                  </div>
-                </div>
-                <textarea #textArea id="textArea{{i+1}}" style="width: 100%; height: 300px;"></textarea>
-              </div>
-            </div>
-          </form>
-          <br>
-          <h2>Variables declaradas</h2>
-          <table id="example"  class="table">
-            <thead>
-              <tr>
-                <th scope="col">Tipo</th>
-                <th scope="col">Identificador</th>
-                <th scope="col">Linea</th>
-                <th scope="col">Ambito</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr *ngFor="let item of array | paginate: { itemsPerPage: 10, currentPage: p }">
-                <td>{{item.type}}</td>
-                <td>{{item.id}}</td>
-                <td>{{item.row}}</td>
-                <td>{{item.ambit}}</td>
-              </tr>
-            </tbody>
-          </table>
-          <pagination-controls (pageChange)="p = $event"></pagination-controls>
-        </div>
+  <div id="wrapper" class="animate">
+    <nav class="navbar header-top fixed-top navbar-expand-lg  navbar-dark bg-dark">
+      <span class="navbar-toggler-icon leftmenutrigger"></span>
+      <a class="navbar-brand" href="#">LOGO</a>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarText"
+        aria-controls="navbarText" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarText">
+        <ul class="navbar-nav animate side-nav">
+          <li class="nav-item">
+            <a class="nav-link" href="#">Home
+              <span class="sr-only">(current)</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" (click)="cargarTabs()">Nueva Tab</a>
+          </li>
+        </ul>
       </div>
-      <div class="hidden-xs col-sm-6 col-md-6 col-full-height login-main-content">
-        <div class="row">
-          <div class="col-md-10 col-md-offset-1">
-            <div class="content-box">
-              <br>
-              <h3 class="content-box-title">Traductor</h3>
-              <div class="content-box-text">
-                <ul class="nav nav-tabs" id="myTab1" role="tablist">
-                  <li class="nav-item">
-                    <a class="nav-link active" id="home-tab1" data-toggle="tab" href="#home1" role="tab" aria-controls="home" aria-selected="true">CONSOLA</a>
-                  </li>
-                  <li class="nav-item">
-                    <a class="nav-link" id="profile-tab1" data-toggle="tab" href="#profile1" role="tab" aria-controls="profile" aria-selected="false">TRADUCCION</a>
-                  </li>
-                </ul>
-                <div class="tab-content" id="myTabContent1">
-                  <div class="tab-pane fade show active" id="home1" role="tabpanel" aria-labelledby="home-tab1">
-                    <textarea #textArea id="textAreaConsola" style="width: 100%; height: 300px;"></textarea>
+    </nav>
+  
+    <div class="container-fluid container-full-height">
+      <div class="row row-full-height">
+        <div class="col-sm-6 col-md-6 col-full-height col-vertical-height login-form">
+          <div class="col-vertical-top">
+            <form class="form-horizontal justify-content-center" role="form">
+              <nav>
+                <div class="nav nav-tabs" id="nav-tab" role="tablist">
+                  <a class="nav-item nav-link" id="nav-home-tab0" data-toggle="tab" href="#nav-home0" role="tab"
+                    aria-selected="true">Pestaña 1</a>
+                  <a *ngFor="let i of arrayTabs" class="nav-item nav-link" id="nav-home-tab{{i+1}}" data-toggle="tab"
+                    href="#nav-home{{i+1}}" role="tab" aria-selected="true">Pestaña {{i+1}}</a>
+                </div>
+              </nav>
+              <div class="tab-content" id="nav-tabContent">
+                <div class="tab-pane fade show active justify-content-center" id="nav-home0" role="tabpane0"
+                  aria-labelledby="nav-home-tab">
+                  <br>
+                  <div class="input-group mb-3">
+                    <div class="input-group-prepend">
+                      <input type="file" accept=".cs" class="btn btn-outline-secondary form-control-file"
+                        (change)="fileChanged($event)">
+                      <button class="btn btn-outline-primary" (click)="uploadDocument(0)" type="button">Cargar
+                        Doc</button>
+                      <button class="btn btn-outline-success" (click)="enviar(textArea.value)"
+                        type="button">Analizar</button>
+                    </div>
                   </div>
-                  <div class="tab-pane fade" id="profile1" role="tabpanel" aria-labelledby="profile-tab1">
-                    <textarea #textArea id="textAreaTraduccion" style="width: 100%; height: 300px;"></textarea>
+                  
+                  <!--<textarea #textArea id="textArea0" style="width: 100%; height: 300px;"></textarea>-->
+                  <div>
+                    <textarea class="rownr" style="height: 300px;" rows="20" cols="3" value="1" readonly></textarea>
+                    <span>
+                      <textarea  class="txt" #textArea id="textArea0" style="width: 90%; height: 300px;" nowrap="nowrap" wrap="off"
+                      autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+                      oninput="input_changed(this)" onchange="input_changed(this)" onscroll="scroll_changed(this)"></textarea><br/><br/>
+                    </span>
+                  </div>
+                </div>
+                <div *ngFor="let i of arrayTabs" class="tab-pane fade show" id="nav-home{{i+1}}" role="tabpanel"
+                  aria-labelledby="nav-home-tab">
+                  <br>
+                  <div class="input-group mb-3">
+                    <div class="input-group-prepend">
+                      <input type="file" accept=".cs" class="btn btn-outline-secondary form-control-file"
+                        (change)="fileChanged($event)">
+                      <button class="btn btn-outline-primary" (click)="uploadDocument(i+1)" type="button">Cargar
+                        Doc</button>
+                      <button class="btn btn-outline-success" (click)="enviar(textArea.value)"
+                        type="button">Analizar</button>
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <textarea class="rownr" style="height: 300px;" rows="20" cols="3" value="1" readonly></textarea>
+                    <span>
+                      <textarea  class="txt" #textArea id="textArea{{i+1}}" style="width: 90%; height: 300px;" nowrap="nowrap" wrap="off"
+                      autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+                      oninput="input_changed(this)" onscroll="scroll_changed(this)"></textarea><br/><br/>
+                    </span>
                   </div>
                 </div>
               </div>
-            </div>
+            </form>
+            <br>
+            <h2>Variables declaradas</h2>
+            <table id="example"  class="table">
+              <thead>
+                <tr>
+                  <th scope="col">Tipo</th>
+                  <th scope="col">Identificador</th>
+                  <th scope="col">Linea</th>
+                  <th scope="col">Ambito</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let item of array | paginate: { itemsPerPage: 10, currentPage: p }">
+                  <td>{{item.type}}</td>
+                  <td>{{item.id}}</td>
+                  <td>{{item.row}}</td>
+                  <td>{{item.ambit}}</td>
+                </tr>
+              </tbody>
+            </table>
+            <pagination-controls (pageChange)="p = $event"></pagination-controls>
           </div>
-          <div class="col-md-10 col-md-offset-1">
-            <div class="content-box">
-              <h3 class="content-box-title">Traductor HTML</h3>
-              <div class="content-box-text">
-                <ul class="nav nav-tabs" id="myTab" role="tablist">
-                  <li class="nav-item">
-                    <a class="nav-link active" id="home-tab" data-toggle="tab" href="#home" role="tab" aria-controls="home" aria-selected="true">HTML</a>
-                  </li>
-                  <li class="nav-item">
-                    <a class="nav-link" id="profile-tab" data-toggle="tab" href="#profile" role="tab" aria-controls="profile" aria-selected="false">JSON</a>
-                  </li>
-                </ul>
-                <div class="tab-content" id="myTabContent">
-                  <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
-                    <textarea #textArea id="textAreaHtml" style="width: 100%; height: 300px;"></textarea>
-                  </div>
-                  <div class="tab-pane fade" id="profile" role="tabpanel" aria-labelledby="profile-tab">
-                    <textarea #textArea id="textAreaJson" style="width: 100%; height: 300px;"></textarea>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
         </div>
+        <div class="hidden-xs col-sm-6 col-md-6 col-full-height login-main-content">
+          <div class="row">
+            <div class="col-md-10 col-md-offset-1">
+              <div class="content-box">
+                <br>
+                <h3 class="content-box-title">Traductor</h3>
+                <div class="content-box-text">
+                  <ul class="nav nav-tabs" id="myTab1" role="tablist">
+                    <li class="nav-item">
+                      <a class="nav-link active" id="home-tab1" data-toggle="tab" href="#home1" role="tab" aria-controls="home" aria-selected="true">CONSOLA</a>
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link" id="profile-tab1" data-toggle="tab" href="#profile1" role="tab" aria-controls="profile" aria-selected="false">TRADUCCION</a>
+                    </li>
+                  </ul>
+                  <div class="tab-content" id="myTabContent1">
+                    <div class="tab-pane fade show active" id="home1" role="tabpanel" aria-labelledby="home-tab1">
+                      <textarea #textArea readonly id="textAreaConsola" style="width: 100%; height: 300px;"></textarea>
+                    </div>
+                    <div class="tab-pane fade" id="profile1" role="tabpanel" aria-labelledby="profile-tab1">
+                      <textarea #textArea readonly id="textAreaTraduccion" style="width: 100%; height: 300px;"></textarea>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-10 col-md-offset-1">
+              <div class="content-box">
+                <h3 class="content-box-title">Traductor HTML</h3>
+                <div class="content-box-text">
+                  <ul class="nav nav-tabs" id="myTab" role="tablist">
+                    <li class="nav-item">
+                      <a class="nav-link active" id="home-tab" data-toggle="tab" href="#home" role="tab" aria-controls="home" aria-selected="true">HTML</a>
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link" id="profile-tab" data-toggle="tab" href="#profile" role="tab" aria-controls="profile" aria-selected="false">JSON</a>
+                    </li>
+                  </ul>
+                  <div class="tab-content" id="myTabContent">
+                    <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
+                      <textarea #textArea readonly id="textAreaHtml" style="width: 100%; height: 300px;"></textarea>
+                    </div>
+                    <div class="tab-pane fade" id="profile" role="tabpanel" aria-labelledby="profile-tab">
+                      <textarea #textArea readonly id="textAreaJson" style="width: 100%; height: 300px;"></textarea>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+  
+          </div>
+        </div>
+  
       </div>
-
     </div>
+  
   </div>
-
-</div>
-
-
-<!--<div class="content">
-
-  <button (click)="cargarTabs()">nueva tab</button>
-  <mat-tab-group >
-    <mat-tab *ngFor="let i of arrayTabs" label="Pestaña {{i}}"> 
-      <div class="block">
-        <label id="lbl">Code </label>
-        <input type='file' (change)="fileChanged($event)">
-        <button (click)="uploadDocument(i)">Cargar doc</button>
-      </div>
-      
-      <div class="content">
-        <textarea #textArea id="textArea{{i}}"  style="width: 500px; height: 500px;"></textarea>  
-      </div>
-      <div class="block">
-        <button (click)="enviar(textArea.value)">Analizar</button>
-      </div>
-      
     
-    </mat-tab>
-  </mat-tab-group></div>-->
-
-
-<!--<mat-grid-list cols="4" rowHeight="100px">
-    <mat-grid-tile [colspan]="3" [rowspan]="1" >
-      <button (click)="cargarTabs()">nueva tab</button>
-      <mat-tab-group >
-        <mat-tab *ngFor="let i of arrayTabs" label="Pestaña {{i}}"> 
-          <div class="block">
-            <label id="lbl">Code </label>
-            <input type='file' (change)="fileChanged($event)">
-            <button (click)="uploadDocument(i)">Cargar doc</button>
-          </div>
-          
-          <div class="content">
-            <textarea #textArea id="textArea{{i}}"  style="width: 500px; height: 500px;"></textarea>  
-          </div>
-          <div class="block">
-            <button (click)="enviar(textArea.value)">Analizar</button>
-          </div>
-          
-        
-        </mat-tab>
-      </mat-tab-group>
-     
-    </mat-grid-tile>
-  </mat-grid-list>-->
-
-
-
-
-
-<router-outlet></router-outlet>
