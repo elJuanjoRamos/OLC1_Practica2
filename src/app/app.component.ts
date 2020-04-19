@@ -1,4 +1,4 @@
-import {Component, OnInit, ViewChild} from '@angular/core';
+import { Component } from '@angular/core';
 import { LexicoAnalizer } from '../app/analizer/LexicoAnalizer';
 import { SintacticoAnalizer } from './analizer/SintacticoAnalizer';
 import { TokenController } from './controller/TokenController';
@@ -12,9 +12,9 @@ import { TableController } from './controller/TableController';
 })
 
 
-export class AppComponent implements OnInit  {
+export class AppComponent {
   title = 'OLC1Practica2';
-
+  p: number = 1;
 
   //VARIABLES GLOBALES
   file: any;
@@ -25,14 +25,6 @@ export class AppComponent implements OnInit  {
   traductorController: any;
   tableController: any;
   array: any[] = [];
-  //displayedColumns: string[] = ['position', 'name', 'weight', 'symbol'];
-  //dataSource = new MatTableDataSource<PeriodicElement>(ELEMENT_DATA);
-
-  //@ViewChild(MatPaginator, {static: true}) paginator: MatPaginator;
-
-  ngOnInit() {
-    //this.dataSource.paginator = this.paginator;
-  }
 
   constructor() {
     this.inputVar = "";
