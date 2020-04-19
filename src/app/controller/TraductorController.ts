@@ -102,7 +102,7 @@ export class TraductorController {
         if(this.currentToken.getDescription()!=null) {
             if(this.currentToken.getDescription() == 'PR_void') {
                 this.emparejar("PR_void");
-                this.type = "Void";
+                this.type = "Metodo Void";
                 this.currentToken = this.arrayListToken[this.index];
                 if(this.currentToken.getDescription() == 'PR_main') {
                     this.InsertVariable(this.type, "Main", this.currentToken.getRow(), "Global");
@@ -143,7 +143,7 @@ export class TraductorController {
             //ES FUNCION
             if(this.currentToken.getDescription() == "TK_Parentesis_Izq") {
                 this.esFuncion = true;
-                this.InsertVariable(this.type, this.id, this.row, this.ambit);
+                this.InsertVariable("Funcion " + this.type, this.id, this.row, this.ambit);
                 this.ambit = "Funcion " + this.traductor;
                 this.traductor = "def " + this.traductor + "(";
                 this.emparejar("TK_Parentesis_Izq");
@@ -480,7 +480,7 @@ export class TraductorController {
         this.asignacionVariable();
         this.emparejar("TK_PuntoComa");
         this.InsertTraduction(this.traductor, "cadena");
-        this.InsertVariable(this.type, this.id, this.row, this.ambit);
+        //this.InsertVariable(this.type, this.id, this.row, this.ambit);
     }
 
     public otraAsignacion() {
@@ -503,18 +503,23 @@ export class TraductorController {
         if(this.currentToken.getDescription() == "PR_int") {
             this.emparejar("PR_int");
             this.type = "int";
+            this.typeTemp = "int";
         } else if(this.currentToken.getDescription() == "PR_double") {
             this.emparejar("PR_double");
             this.type = "double";
+            this.typeTemp = "double";
         } else if(this.currentToken.getDescription() == "PR_char") {
             this.emparejar("PR_char");
             this.type = "char";
+            this.typeTemp = "char";
         } else if(this.currentToken.getDescription() == "PR_bool") {
             this.emparejar("PR_bool");
             this.type = "bool";
+            this.typeTemp = "bool";
         } else if(this.currentToken.getDescription() == "PR_string") {
             this.emparejar("PR_string");
-            this.type = "String";
+            this.type = "string";
+            this.typeTemp = "string"
         }
     }
 
@@ -523,11 +528,12 @@ export class TraductorController {
         this.id = this.currentToken.getLexema();
         this.row = this.currentToken.getRow();
         this.emparejar("Identificador");
+        this.InsertVariable(this.type, this.id, this.row, this.ambit);
+        this.type = this.typeTemp;
         if(this.currentToken.getDescription() == "TK_Igual") {
             this.emparejar("TK_Igual");
             this.traductor = this.traductor + "=";
             this.expresion();
-            this.InsertTraduction(this.traductor, "cadena");
         } else {
             //EPSILON
         }
@@ -541,6 +547,7 @@ export class TraductorController {
             this.emparejar("TK_Coma");
             this.listaAsignacion();
         } else {
+            this.InsertTraduction(this.traductor, "cadena");
             //EPSILON
         }
     }
@@ -1529,7 +1536,6 @@ export class TraductorController {
         this.id = this.type = "";
     }
 
-   
     /* OBTIENE LA CADENA HTML A TRADUCIR*/
     public getHtml( str:string ){
         str = str.replace("'", " ").trim();
